@@ -33,8 +33,13 @@ _regs = [
 	"edx", "dx", "dh", "dl",
 	"edi", "esi", "ebp", "esp"
 ]
-_cmps = ["==", "<", ">", "!=", "<=", ">="]
-_jmps = ["je", "jl", "jg", "jne", "jle", "jge"]
+_cmps = {
+	"==": "je",
+	"<": "jl",
+	">": "jg",
+	"!=": "jne",
+	"<=":"jle",
+	">=": "jge"}
 class FunCall(Basic):#todo move to fun?
 	def __init__(self, name="", lvl=0, params=[]):
 		super().__init__(name, lvl)
@@ -94,31 +99,33 @@ class Var:
 	def __str__(self):
 		return "".join(map(str, self.asm))
 
-class Assign:
+class Assign(Basic):
 	def __init__(self, name="", val="", lvl=0):
-		self.name = name
-		self.l = lvl
+		super().__init__(name, lvl)
 		#if isinstance(val, Identifier) or isinstance(val, int):
 		#	val = str(val)
 		self.v = val
-
-	def __str__(self):
-		ops = [ (i.is_ref and "[%s]"%i or str(i) ) for i in (self.name, self.v)]
+		#ops = [ (i.is_ref and "[%s]"%i or str(i) ) for i in (self.name, self.v)]
 		#if self.name.is_ref and self.v.is_reg:
 		#	s = _sizes[self.v.size]
 		#	ops[1] = s+ " "+ ops[1]
-		self.asm = [asm.Asm("mov %s, %s"%tuple(ops), self.l),]
-		return "".join(map(str, self.asm))
+		#if isinstance(val, Cmp):
+		#	#if its a comparison let's put some tricks
+		self.asm = [asm.Asm("mov %s, %s"%(self.name, self.v), self.l),]
 
 class Cmp(Basic):
 	def __init__(self, cmp="==", ops=[], lvl = 0):
 		super().__init__("", lvl)
-		ci = _cmps.index(cmp)
-		j = _jmps[ci]
+		self.ops = tuple(ops)
+		j = _cmps[cmp]
 		self.asm = [
-			asm.Asm( "cmp %s, %s"%ops, self.l),
-			asm.asm(j+" 4", self.l, "jump to true, below must be jmp to false")#enough space to put the "false unconditional jump"
+			asm.Asm( "cmp %s, %s"%self.ops, self.l),
+			asm.Asm(j+" 4", self.l, "jump to true, below must be jmp to false")#enough space to put the "false unconditional jump"
 		]
+
+class Condition(Basic):
+	def __init__(self, cmp="==", ops=[], lvl = 0):
+		super().__init__("", lvl)
 
 class Identifier:
 	size = 4
@@ -156,7 +163,8 @@ class Identifier:
 		#	self.is_ref = not self.is_ref
 
 	def __str__(self):
-		return self.n
+		#return self.n
+		return self.is_ref and "[%s]"%self.n or self.n
 	#return asm.Asm(self.n, self.l)
 
 	def tryCall(self, r):
@@ -181,9 +189,9 @@ class Identifier:
 	def tryMath(self, r): pass #this probably needs to call parse_real_exp
 	def tryCmp(self, r):
 		r.lstrip()
-		c = r.get(_cmps)
+		c = r.get(list(_cmps.keys()))
 		if not c : return
-		other = get_ident(r )
+		other = get_ident(r)
 		if not other:
 			raise Exception ("other identifier expected")
 		return Cmp(c, [self, other], self.l)
@@ -193,7 +201,7 @@ class Identifier:
 		if not r.get("="): return
 		#todo parse_true_real_exp
 		r.lstrip(True)
-		i = get_ident(r)
+		i = get_ident(r)#todo parse_real_exp
 		if not i:
 			#i = r.getWhile(nums) #todo getNum
 			raise Exception(" > value or identifier expected")

@@ -15,6 +15,7 @@ fun int main():
 	eax = @edx+4
 	hFileName = eax
 	open_r(int hFileName)
+	eax != 0
 	asm:
 		test eax, eax ; Check the output of open()
 		js terminate ; If the sign flag is set (positive) we can begin reading the file	; = If the output is negative, then open failed. So we should exit
