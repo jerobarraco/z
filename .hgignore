@@ -1,0 +1,4 @@
+syntax: glob
+compiler/.idea/*
+compiler/docs/other/*
+*/__pycache__/*
