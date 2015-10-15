@@ -115,7 +115,7 @@ class Assign(Basic):
 class Cmp(Basic):
 	def __init__(self, cmp="==", ops=[], lvl = 0):
 		super().__init__("", lvl)
-		self.ops = tuple(ops)
+		self.ops = tuple([i.ref() for i in ops])
 		j = _cmps[cmp]
 		self.asm = [
 			asm.Asm( "cmp %s, %s"%self.ops, self.l),

@@ -17,7 +17,7 @@ fun int main():
 	open_r(int hFileName)
 
 	· eax != 0
-	if eax == 0:
+	if eax != 0:
 		print(str saludo, int saludoLen)
 		quit()
 	else:

@@ -21,19 +21,19 @@ main:
 	add esp, 4 ;end open_r
 	 ; eax != 0
 	cmp eax, 0
-	je 4 ;jump to true, below must be jmp to false
-	jmp _false_140080167012168
+	jne 4 ;jump to true, below must be jmp to false
+	jmp _false_140471409526600
 	nop
 			push DWORD [saludoLen] ;print param 0
 			push DWORD saludo ;print param 1
 		call print
 		add esp, 8 ;end print
 		call quit
-	jmp _end_140080167012168
-	_false_140080167012168:
+	jmp _end_140471409526600
+	_false_140471409526600:
 		mov ebx, 4
 		nop
-	_end_140080167012168:
+	_end_140471409526600:
 	test eax, eax ; Check the output of open()
 	js terminate ; If the sign flag is set (positive) we can begin reading the file	; = If the output is negative, then open failed. So we should exit
 	mov [hFile], eax
