@@ -34,7 +34,7 @@ _regs = [
 	"edi", "esi", "ebp", "esp"
 ]
 _cmps = ["==", "<", ">", "!=", "<=", ">="]
-
+_jmps = ["je", "jl", "jg", "jne", "jle", "jge"]
 class FunCall(Basic):#todo move to fun?
 	def __init__(self, name="", lvl=0, params=[]):
 		super().__init__(name, lvl)
@@ -111,12 +111,14 @@ class Assign:
 		return "".join(map(str, self.asm))
 
 class Cmp(Basic):
-	def __init__(self, n = "", lvl = 0, cmp="==", ops=[]):
-		super().__init__(n, lvl)
+	def __init__(self, cmp="==", ops=[], lvl = 0):
+		super().__init__("", lvl)
+		ci = _cmps.index(cmp)
+		j = _jmps[ci]
 		self.asm = [
-			asm.Asm("test %s, %s")%ops, self.l,
-			
-					]
+			asm.Asm( "cmp %s, %s"%ops, self.l),
+			asm.asm(j+" 4", self.l, "jump to true, below must be jmp to false")#enough space to put the "false unconditional jump"
+		]
 
 class Identifier:
 	size = 4
@@ -184,8 +186,7 @@ class Identifier:
 		other = get_ident(r )
 		if not other:
 			raise Exception ("other identifier expected")
-
-		return
+		return Cmp(c, [self, other], self.l)
 
 	def trySet(self, r):
 		r.lstrip()
