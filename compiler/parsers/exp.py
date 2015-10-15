@@ -33,6 +33,7 @@ _regs = [
 	"edx", "dx", "dh", "dl",
 	"edi", "esi", "ebp", "esp"
 ]
+_cmps = ["==", "<", ">", "!=", "<=", ">="]
 
 class FunCall(Basic):#todo move to fun?
 	def __init__(self, name="", lvl=0, params=[]):
@@ -112,7 +113,10 @@ class Assign:
 class Cmp(Basic):
 	def __init__(self, n = "", lvl = 0, cmp="==", ops=[]):
 		super().__init__(n, lvl)
-		self.asm = []
+		self.asm = [
+			asm.Asm("test %s, %s")%ops, self.l,
+			
+					]
 
 class Identifier:
 	size = 4
@@ -175,7 +179,7 @@ class Identifier:
 	def tryMath(self, r): pass #this probably needs to call parse_real_exp
 	def tryCmp(self, r):
 		r.lstrip()
-		c = r.get(["==", "<", ">", "!=", "<=", ">="])
+		c = r.get(_cmps)
 		if not c : return
 		other = get_ident(r )
 		if not other:
