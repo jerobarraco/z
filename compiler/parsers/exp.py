@@ -109,6 +109,10 @@ class Assign:
 		self.asm = [asm.Asm("mov %s, %s"%tuple(ops), self.l),]
 		return "".join(map(str, self.asm))
 
+class Cmp(Basic):
+	def __init__(self, n = "", lvl = 0, cmp="==", ops=[]):
+		super().__init__()
+
 class Identifier:
 	size = 4
 	mytype = "int"
@@ -168,9 +172,18 @@ class Identifier:
 
 	def tryLen(self, r): pass
 	def tryMath(self, r): pass #this probably needs to call parse_real_exp
-	def tryCmp(self, r): pass
+	def tryCmp(self, r):
+		r.lstrip()
+		c = r.get(["==", "<", ">", "!=", "<=", ">="])
+		if not c : return
+		other = get_ident(r )
+		if not other:
+			raise Exception ("other identifier expected")
+
+		return
+
 	def trySet(self, r):
-		r.lstrip(True)
+		r.lstrip()
 		if not r.get("="): return
 		#todo parse_true_real_exp
 		r.lstrip(True)

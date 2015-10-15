@@ -9,5 +9,3 @@ Bytecode	Assembler	Z			Nimrod				Python
 - - Cost is NOT implementation, is usage
 - How people already does stuff, or statistics are NOT a valid point, NEVER.
 - We take no crap!
-
-
