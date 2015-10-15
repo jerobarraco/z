@@ -111,7 +111,8 @@ class Assign:
 
 class Cmp(Basic):
 	def __init__(self, n = "", lvl = 0, cmp="==", ops=[]):
-		super().__init__()
+		super().__init__(n, lvl)
+		self.asm = []
 
 class Identifier:
 	size = 4
