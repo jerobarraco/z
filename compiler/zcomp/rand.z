@@ -1,0 +1,39 @@
+asm:
+	; Declare some external functions
+	;
+	extern	rand		; the C function, to be called
+	extern printf
+	extern srand
+	extern time
+	extern scanf
+	extern fopen
+	extern strlen
+	SECTION .data		; Data section, initialized variables
+		a:	dd	5		; int a=5;
+		fmt:    db "num=%d", 10, 0 ; The printf format, "\n",'0'
+
+var str mensaje = "how long is this?"
+var str lectura="%d"
+var int num
+
+fun int main():
+	· "opens" a file (does nothing but doesn't crash)
+	fopen(int 0)
+
+	· get current time
+	time(int 0)
+	· seeds random
+	srand(int eax)
+	· gets one random number
+	rand()
+	· shows it
+	printf(str fmt, int eax)
+
+	· read and echo a number
+	scanf (str lectura, ptr num )
+	printf(str fmt, int num)
+
+	·get string length
+	strlen(str mensaje)
+	printf(str fmt, int eax)
+

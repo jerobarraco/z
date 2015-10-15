@@ -1,0 +1,26 @@
+·#include <stdio.h>      /* printf */
+·#include <math.h>       /* pow */
+·int main (){
+·  printf ("7 ^ 3 = %f\n", pow (7.0, 3.0) );
+·  printf ("4.73 ^ 12 = %f\n", pow (4.73, 12.0) );
+·  printf ("32.01 ^ 1.54 = %f\n", pow (32.01, 1.54) );
+·  return 0;}
+·Edit & Run
+·Output:
+·7 ^ 3 = 343.000000
+·4.73 ^ 12 = 125410439.217423
+·32.01 ^ 1.54 = 208.036691
+
+asm:
+	; Declare some external functions
+	extern pow		; the C function, to be called
+	extern printf
+	SECTION .data		; Data section, initialized variables
+
+var str ca = "7 ^ 3 = %f\n"
+var str cb = "4.73 ^ 12 = %f\n"
+var str cc = "32.01 ^ 1.54 = %f\n"
+
+fun main():
+	pow( int 7, int 3)
+	printf(str ca, int eax)

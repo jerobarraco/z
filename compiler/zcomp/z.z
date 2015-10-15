@@ -1,0 +1,69 @@
+asm:
+	section .bss
+		buffer: resb 2048 ; A 2 KB byte buffer used for read
+	section .data
+var int entero = 5
+var int hFile
+var int hFileName
+var int readed
+var int buflen = 2048
+var str saludo = "Bienvenidos a el compilador Z, por favor llame con el nombre de archivo *.z a parsear"
+
+fun int main():
+	ecx = @+4
+	edx = @+8
+	eax = @edx+4
+	hFileName = eax
+	open_r(int hFileName)
+	asm:
+		test eax, eax ; Check the output of open()
+		js terminate ; If the sign flag is set (positive) we can begin reading the file	; = If the output is negative, then open failed. So we should exit
+		mov [hFile], eax
+		_re_read:
+	read(int hFile, str buffer, int buflen)
+	asm:
+		test eax, eax; Check for errors / EOF
+		mov [readed], eax
+		jz terminate ; If not EOF,continue
+		js terminate ; If not read failed, continue ; else Didn't read the whole file, so just output what we got and be done with it.
+	print(str buffer, int readed)
+	asm:
+		jmp _re_read
+		terminate:
+
+· now with 100% more comments
+fun open_r(str fname):
+	· open(char *path, int flags, mode_t mode) put filename in ebx. return is on eax
+	ebx = @+4
+	eax = 5
+	ecx = 0
+	edx = 0
+	sys(int 128)
+
+fun print(str buff, int len):
+	ecx = @+4
+	edx = @+8
+	eax = 4
+	ebx = 1
+	sys(int 128)
+
+fun read(int hFile, str buff, int buflen):
+	· read(int fd, void *buf, size_t count);;fd=ebx, buf=ecx, len=edx; ret=eax
+	ebx = @+4
+	ecx = @+8
+	edx = @+12
+	eax = 3
+	sys(int 128)
+
+fun quit():
+	pass
+	eax = 1
+	ebx = 0
+	sys(int 128)
+
+fun inter(int a, int b, int c, int d):
+	eax = @+4
+	ebx = @+8
+	ecx = @+12
+	edx = @+16
+	sys(int 128)

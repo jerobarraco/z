@@ -1,0 +1,32 @@
+class Reader_:
+	def __init__(self, f):
+		self.f = f
+		self.level = 0
+		
+	def r(self):
+		self.l = self.r.readline()
+		return r
+	
+	def level(self):
+		return self.level
+	
+	def nextToken(self):
+		self.l, t = self.tokenizer.read(self.l)
+		return t
+	
+	def pushTokenizer(self, tokenizer):
+		self.tokenizers.push(self.tokenizer)
+		self.tokenizer = tokenizer
+	
+	def popTokenizer(self):
+		p = self.tokenizer
+		self.tokenizer = self.tokenizers.pop(-1)
+		return p
+	
+	
+def parse_indent(r):
+	level = 0
+	if l[-1]=="\n": l = l[:-1]
+	while l[level]== "\t":
+		level += 1
+	return level, l[level:]
