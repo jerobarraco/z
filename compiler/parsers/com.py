@@ -7,3 +7,5 @@ letters = string.ascii_letters + "_"
 nums = string.digits
 hex = string.hexdigits
 oct = string.octdigits
+
+class Hell(Exception):pass

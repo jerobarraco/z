@@ -1,8 +1,9 @@
 #coding:utf-8
 import traceback
 from urllib.response import addbase
-from parsers.com import letters, blank, blanknl, nl, nums
+from parsers.com import letters, blank, blanknl, nl, nums, Hell
 from parsers import asm
+
 
 class Basic:
 	def __init__(self, name="", lvl=0):
@@ -40,6 +41,7 @@ _cmps = {
 	"!=": "jne",
 	"<=":"jle",
 	">=": "jge"}
+
 class FunCall(Basic):#todo move to fun?
 	def __init__(self, name="", lvl=0, params=[]):
 		super().__init__(name, lvl)
@@ -55,13 +57,10 @@ class FunCall(Basic):#todo move to fun?
 			return
 
 		params = list(reversed(params))
-		direct = "push %s %s"
-		refer = "push %s [%s]"
-
+		s =  "push %s %s"
 		for i, p in enumerate(params):
-			s = p.is_ref and refer or direct
 			size = p.is_ref and 4 or p.size
-			self.asm.append(asm.Asm(s%(_sizes[size], p.n), lvl+1, "%s param %s"%(self.name, i)))
+			self.asm.append(asm.Asm(s%(_sizes[size], p.ref()), lvl+1, "%s param %s"%(self.name, i)))
 
 		self.asm.append( asm.Asm("call "+name, lvl) )
 		totsize = sum([i.size for i in params])
@@ -87,12 +86,12 @@ class Var:
 
 		if t in ("int", "short", "long"):
 			v = {"byte":"db", "short":"dw", "int":"dd"}
-			self.asm = [ asm.Asm(str(name)+": "+v[t]+" "+str(val), lvl), ]
+			self.asm = [ asm.Asm(name.n+": "+v[t]+" "+str(val), lvl), ]
 		elif t == "str":
 			val = str(val)
 			self.asm = [
-				asm.Asm(str(name)+": db '"+val+"',0", lvl),
-				asm.Asm(str(name)+"Len: dd %s"%len(val), lvl)
+				asm.Asm(name.n+": db '"+val+"',0", lvl),
+				asm.Asm(name.n+"Len: dd %s"%len(val), lvl)
 				#TODO until i have a way to get the information of the variables everything must be dd for calling functions
 			]
 
@@ -111,7 +110,7 @@ class Assign(Basic):
 		#	ops[1] = s+ " "+ ops[1]
 		#if isinstance(val, Cmp):
 		#	#if its a comparison let's put some tricks
-		self.asm = [asm.Asm("mov %s, %s"%(self.name, self.v), self.l),]
+		self.asm = [asm.Asm("mov %s, %s"%(self.name.ref(), self.v.ref()), self.l),]
 
 class Cmp(Basic):
 	def __init__(self, cmp="==", ops=[], lvl = 0):
@@ -124,8 +123,21 @@ class Cmp(Basic):
 		]
 
 class Condition(Basic):
-	def __init__(self, cmp="==", ops=[], lvl = 0):
+	def __init__(self, cmp, true="", false="", lvl = 0):
 		super().__init__("", lvl)
+		self.false = "_%s_false"%id(self)
+		self.end = "_%s_end"%id(self)
+		self.asm = [
+			cmp,
+			asm.Asm("jmp "+self.false, lvl),
+			asm.Asm("nop", lvl),#extra 4 byets
+			true,
+			asm.Asm("jmp "+self.end, lvl),
+			asm.Asm(self.false+":", lvl),
+			false,
+			asm.Asm(self.end+":", lvl)
+		]
+
 
 class Identifier:
 	size = 4
@@ -147,25 +159,28 @@ class Identifier:
 			self.setType(_types[2])
 
 	def setType(self, t):
-		self.is_type = t == "type"
+		self.mytype = t
+		self.is_type = self.mytype == "type"
 		try :
 			self.size = _tsizes[_types.index(t)]
 		except:
 			self.size = 4
 
-		self.mytype = t
+		self.is_ref = False
 		self.is_reg = sum(map(self.n.startswith, _regs))>0
-		self.is_ref = not (self.const or self.is_reg )#t in _trefs
-		if self.mytype in _trefs:
-			self.is_ref = not self.is_ref# looks like an optimization, hard to explain
-		#if self.is_reg:
-		#	self.is_ref = False
-		#	self.is_ref = not self.is_ref
+		if not self.is_type:
+			self.is_ref = not (self.const or self.is_reg )#t in _trefs
+			if self.mytype in _trefs:
+				self.is_ref = not self.is_ref# looks like an optimization, hard to explain
+
+			#if self.is_reg:
+			#	self.is_ref = False
+			#	self.is_ref = not self.is_ref
+	def ref(self):
+		return self.is_ref and "[%s]"%self.n or self.n
 
 	def __str__(self):
-		#return self.n
-		return self.is_ref and "[%s]"%self.n or self.n
-	#return asm.Asm(self.n, self.l)
+		return self.n
 
 	def tryCall(self, r):
 		try:
@@ -206,6 +221,30 @@ class Identifier:
 			#i = r.getWhile(nums) #todo getNum
 			raise Exception(" > value or identifier expected")
 		return Assign(self, i, self.l)
+
+def get_block(r, lvl):
+	insts = []
+	while r.l >lvl:
+		insts.append(parse_exp(r, lvl))
+	return insts
+
+def parse_condition(r, lvl):
+	if not r.get("if"): return
+	r.lstrip()
+	i = get_ident(r, lvl)
+	if not i: raise Hell("identifier expected")
+	c = i.tryCmp()
+	if not c: #literal if ( ej if (x))
+		c = Cmp("!=", [i, Identifier(0)])
+	true = get_block(r, lvl)
+
+	false = ""
+
+	if r.get("else"):
+		r.lstrip()
+		if not r.get(":"): raise Hell("What about the ':'?")
+		false = get_block(r, lvl)
+	return Condition(c, true, false, lvl)
 
 
 def get_params(r):
@@ -264,7 +303,6 @@ def get_ident(r, lvl=0):
 			n = i+s+n
 		return Identifier(n, lvl, (valat and "ptr") or "int")
 
-
 def parse_var(r, lvl=0):
 	"""tries to parse a variable definiton"""
 	#todo add to class? as "try to"
@@ -278,6 +316,7 @@ def parse_var(r, lvl=0):
 	r.getWhile(blank)
 	val = 0
 	eq = r.get("=")
+
 	if eq:
 		r.getWhile(blank)
 		tn = str(taip)
@@ -288,10 +327,9 @@ def parse_var(r, lvl=0):
 		elif tn in _types[:3]:
 			val = get_ident(r) or 0
 			#val = r.getWhile(nums) or 0
-
+	#todo pass only Idents to Var
 	v = Var(name, val, taip, lvl )
 	return str(v)#para sacar cuando saque los vars a los funcs
-
 
 def parse_real_exp(r, lvl=0):
 	"tries to parse an expression"
@@ -320,6 +358,8 @@ def parse_exp(r, lvl=0): #expressions are separated by \n so one liners here onl
 	#todo remove "var"
 	elif r.get(["var"]):
 		parse_var(r, lvl)
+	elif r.get(["if"]):
+		insts.append(parse_condition(r, lvl))
 	else:
 		print ("is another thing ")
 		t = parse_real_exp(r, lvl)

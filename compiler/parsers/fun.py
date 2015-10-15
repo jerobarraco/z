@@ -27,7 +27,7 @@ class Fun:
 		self.taip = taip
 
 	def __str__(self):
-		n = str(self.name)
+		n = self.name.n
 		is_main = n == "main"
 		true_name = is_main and com.main_name or n
 		lines = []
