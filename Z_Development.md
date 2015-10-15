@@ -9,3 +9,7 @@ Bytecode	Assembler	Z			Nimrod				Python
 - - Cost is NOT implementation, is usage
 - How people already does stuff, or statistics are NOT a valid point, NEVER.
 - We take no crap!
+
+- [Design Features](Z_Design_Feats.md)
+- [Code Features](Z_Code_Feats.md)
+- [Design Document](Z_Design_Doc.md)
