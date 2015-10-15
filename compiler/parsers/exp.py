@@ -123,20 +123,21 @@ class Cmp(Basic):
 		]
 
 class Condition(Basic):
-	def __init__(self, cmp, true="", false="", lvl = 0):
+	def __init__(self, cmp, true=[], false=[], lvl = 0):
 		super().__init__("", lvl)
-		self.false = "_%s_false"%id(self)
-		self.end = "_%s_end"%id(self)
+		self.false = "_false_%s"%id(self)
+		self.end = "_end_%s"%id(self)
 		self.asm = [
 			cmp,
 			asm.Asm("jmp "+self.false, lvl),
 			asm.Asm("nop", lvl),#extra 4 byets
-			true,
-			asm.Asm("jmp "+self.end, lvl),
-			asm.Asm(self.false+":", lvl),
-			false,
-			asm.Asm(self.end+":", lvl)
 		]
+		#TODO if there is no false, dont jump after true
+		self.asm.extend(true)
+		self.asm.append(asm.Asm("jmp "+self.end, lvl))
+		self.asm.append(asm.Asm(self.false+":", lvl))
+		self.asm.extend(false)
+		self.asm.append(asm.Asm(self.end+":", lvl))
 
 
 class Identifier:
@@ -202,7 +203,7 @@ class Identifier:
 
 	def tryLen(self, r): pass
 	def tryMath(self, r): pass #this probably needs to call parse_real_exp
-	def tryCmp(self, r):
+	def tryCmp(self, r, lvl=0):
 		r.lstrip()
 		c = r.get(list(_cmps.keys()))
 		if not c : return
@@ -224,25 +225,30 @@ class Identifier:
 
 def get_block(r, lvl):
 	insts = []
-	while r.l >lvl:
-		insts.append(parse_exp(r, lvl))
+	while r.level >lvl:
+		insts.extend(parse_exp(r, r.level))
+		r.stripBlankLines()
 	return insts
 
 def parse_condition(r, lvl):
-	if not r.get("if"): return
 	r.lstrip()
 	i = get_ident(r, lvl)
 	if not i: raise Hell("identifier expected")
-	c = i.tryCmp()
+	c = i.tryCmp(r, lvl)
 	if not c: #literal if ( ej if (x))
 		c = Cmp("!=", [i, Identifier(0)])
+
+	if not r.get(":"): raise Hell("You need the : (well not actually)")
+	r.stripBlankLines()
+
 	true = get_block(r, lvl)
-
-	false = ""
-
-	if r.get("else"):
+	r.stripBlankLines()
+	r.lstrip()
+	false =  []
+	if r.get(["else"]):
 		r.lstrip()
 		if not r.get(":"): raise Hell("What about the ':'?")
+		r.stripBlankLines()
 		false = get_block(r, lvl)
 	return Condition(c, true, false, lvl)
 

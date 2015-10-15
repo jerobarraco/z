@@ -15,7 +15,15 @@ fun int main():
 	eax = @edx+4
 	hFileName = eax
 	open_r(int hFileName)
-	eax != 0
+
+	· eax != 0
+	if eax == 0:
+		print(str saludo, int saludoLen)
+		quit()
+	else:
+		ebx = 4
+		pass
+
 	asm:
 		test eax, eax ; Check the output of open()
 		js terminate ; If the sign flag is set (positive) we can begin reading the file	; = If the output is negative, then open failed. So we should exit
