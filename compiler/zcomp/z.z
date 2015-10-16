@@ -15,37 +15,12 @@ fun int main():
 	eax = @edx+4
 	hFileName = eax
 	open_r(int hFileName)
-	if eax => 0:
+	if eax >= 01:
+		hFile = eax
 		read(int hFile, str buffer, int buflen)
-		for pass ; eax != 0; read(int hFile, str buffer, int buflen):
+		for pass ; eax > 0; read(int hFile, str buffer, int buflen):
 			readed = eax
 			print(str buffer, int readed)
-	· pass
-	· pass
-	· eax != 0
-
-	if eax != 0:
-		print(str saludo, int saludoLen)
-		quit()
-	else:
-		ebx = 4
-		pass
-
-	asm:
-		test eax, eax ; Check the output of open()
-		js terminate ; If the sign flag is set (positive) we can begin reading the file	; = If the output is negative, then open failed. So we should exit
-		mov [hFile], eax
-		_re_read:
-	read(int hFile, str buffer, int buflen)
-	asm:
-		test eax, eax; Check for errors / EOF
-		mov [readed], eax
-		jz terminate ; If not EOF,continue
-		js terminate ; If not read failed, continue ; else Didn't read the whole file, so just output what we got and be done with it.
-	print(str buffer, int readed)
-	asm:
-		jmp _re_read
-		terminate:
 
 · now with 100% more comments
 fun open_r(str fname):
@@ -69,17 +44,4 @@ fun read(int hFile, str buff, int buflen):
 	ecx = @+8
 	edx = @+12
 	eax = 3
-	sys(int 128)
-
-fun quit():
-	pass
-	eax = 1
-	ebx = 0
-	sys(int 128)
-
-fun inter(int a, int b, int c, int d):
-	eax = @+4
-	ebx = @+8
-	ecx = @+12
-	edx = @+16
 	sys(int 128)

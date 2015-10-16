@@ -39,8 +39,16 @@ _cmps = {
 	"<": "jl",
 	">": "jg",
 	"!=": "jne",
-	"=<":"jle",#the operator is important in this way
-	"=>": "jge"}#Todo fix
+	"<=":"jle",#the operator is important in this way
+	">=": "jge"}#Todo fix
+
+_cmpsn = {
+	"==": "jne",
+	"<": "jnl",
+	">": "jng",
+	"!=": "je",
+	"<=":"jg",#the operator is important in this way
+	">=": "jl"}#Todo fix
 
 class FunCall(Basic):#todo move to fun?
 	def __init__(self, name="", lvl=0, params=[]):
@@ -116,7 +124,7 @@ class Cmp(Basic):
 	def __init__(self, cmp="==", ops=[], lvl = 0):
 		super().__init__("", lvl)
 		self.ops = tuple([i.ref() for i in ops])
-		self.j = _cmps[cmp]
+		self.j = _cmpsn[cmp]
 
 	def falseJumpTo(self, tag=None):
 		self.asm = [
@@ -205,11 +213,14 @@ class Identifier:
 	def tryMath(self, r): pass #this probably needs to call parse_real_exp
 	def tryCmp(self, r):
 		r.lstrip()
-		c = r.get(list(_cmps.keys()))
+		c = None
+		for i in list(sorted(_cmps.keys(), key=len, reverse=True)): #get order just the opposite as we need so force it.
+			c = r.get([i])#todo fix this hack
+			if c : break
 		if not c : return
 		other = get_ident(r)
 		if not other:
-			raise Exception ("other identifier expected")
+			raise Exception ("> other identifier expected got this ", repr(r.l))
 		return Cmp(c, [self, other], self.l)
 
 	def trySet(self, r):
@@ -220,7 +231,7 @@ class Identifier:
 		i = get_ident(r)#todo parse_real_exp
 		if not i:
 			#i = r.getWhile(nums) #todo getNum
-			raise Exception(" > value or identifier expected")
+			raise Exception(" > value or identifier expected got ",repr(r.l))
 		return Assign(self, i, self.l)
 
 class Loop(Basic):

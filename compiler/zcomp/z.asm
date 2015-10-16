@@ -19,17 +19,18 @@ main:
 		push DWORD [hFileName] ;open_r param 0
 	call open_r
 	add esp, 4 ;end open_r
-	cmp eax, 0
-	jge _if_else_140385145991120 ;jump to true, below must be jmp to false
+	cmp eax, 01
+	jl _if_else_140557123962192 ;jump to true, below must be jmp to false
+		mov [hFile], eax
 			push DWORD [buflen] ;read param 0
 			push DWORD buffer ;read param 1
 			push DWORD [hFile] ;read param 2
 		call read
 		add esp, 12 ;end read
 			nop
-		_forstart_140385145988544:
+		_forstart_140557123963704:
 			cmp eax, 0
-			jne _forend_140385145988544 ;jump to true, below must be jmp to false
+			jng _forend_140557123963704 ;jump to true, below must be jmp to false
 			mov [readed], eax
 				push DWORD [readed] ;print param 0
 				push DWORD buffer ;print param 1
@@ -40,45 +41,11 @@ main:
 				push DWORD [hFile] ;read param 2
 			call read
 			add esp, 12 ;end read
-			jmp _forstart_140385145988544
-		_forend_140385145988544:
-	jmp _if_end_140385145991120
-	_if_else_140385145991120:
-	_if_end_140385145991120:
-	 ; pass
-	 ; pass
-	 ; eax != 0
-	cmp eax, 0
-	jne _if_else_140385146037696 ;jump to true, below must be jmp to false
-			push DWORD [saludoLen] ;print param 0
-			push DWORD saludo ;print param 1
-		call print
-		add esp, 8 ;end print
-		call quit
-	jmp _if_end_140385146037696
-	_if_else_140385146037696:
-		mov ebx, 4
-		nop
-	_if_end_140385146037696:
-	test eax, eax ; Check the output of open()
-	js terminate ; If the sign flag is set (positive) we can begin reading the file	; = If the output is negative, then open failed. So we should exit
-	mov [hFile], eax
-	_re_read:
-		push DWORD [buflen] ;read param 0
-		push DWORD buffer ;read param 1
-		push DWORD [hFile] ;read param 2
-	call read
-	add esp, 12 ;end read
-	test eax, eax; Check for errors / EOF
-	mov [readed], eax
-	jz terminate ; If not EOF,continue
-	js terminate ; If not read failed, continue ; else Didn't read the whole file, so just output what we got and be done with it.
-		push DWORD [readed] ;print param 0
-		push DWORD buffer ;print param 1
-	call print
-	add esp, 8 ;end print
-	jmp _re_read
-	terminate:
+			jmp _forstart_140557123963704
+		_forend_140557123963704:
+	jmp _if_end_140557123962192
+	_if_else_140557123962192:
+	_if_end_140557123962192:
 	;exiting!
 	mov eax, 1
 	mov ebx, 0
@@ -111,19 +78,4 @@ read:
 	mov eax, 3
 	int 128
 	ret ;; end read
-
-quit:
-	nop
-	mov eax, 1
-	mov ebx, 0
-	int 128
-	ret ;; end quit
-
-inter:
-	mov eax, [esp+4]
-	mov ebx, [esp+8]
-	mov ecx, [esp+12]
-	mov edx, [esp+16]
-	int 128
-	ret ;; end inter
 
