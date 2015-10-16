@@ -14,6 +14,6 @@ fun int main():
 	asm:
 		add	eax, 2		; a+2
 	printf(str fmt, int a, int eax)
+	esp = ebp
 	asm:
-			mov     esp, ebp	; takedown stack frame
-			pop     ebp		; same as "leave" op
+		pop     ebp		; same as "leave" op
