@@ -35,7 +35,7 @@ def parse_asm(r, lvl =0):
 	#r._getWhile(com.nl)
 	l = r.level
 	print ("level is ", r.level)
-	if l<=mylvl:
+	if l<=mylvl:#todo use getblock
 		print("level is wrong, quit ", mylvl, l)
 		return
 	lines = []
@@ -44,4 +44,4 @@ def parse_asm(r, lvl =0):
 		lines.append(parse_asm_line(r, mylvl))
 		r.stripBlankLines()
 
-	return map(str, lines)
+	return list(map(str, lines))

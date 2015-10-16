@@ -201,10 +201,6 @@ def parse_def(l):
 	print ("stub")
 	return ""
 
-def comment(r, l):
-	c = r.getTill("\n")[:-1]
-	return [str(asm.Asm("", l, c)),]
-
 parse_struct = parse_const= parse_import = parse_def
 
 __global_tokens = {
@@ -214,7 +210,7 @@ __global_tokens = {
 	"struct": parse_struct,
 	"const":parse_const,
 	"var":exp.parse_var,#todo sacar de aca
-	"·":comment
+	"·":exp.comment
 	#"global":exp.parse_global_var#todo hacerlo
 
 }

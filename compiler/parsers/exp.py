@@ -129,8 +129,8 @@ class Cmp(Basic):
 class Condition(Basic):
 	def __init__(self, cmp, true=[], false=[], lvl = 0):
 		super().__init__("", lvl)
-		self.false = "_false_%s"%id(self)
-		self.end = "_end_%s"%id(self)
+		self.false = "_if_else_%s"%id(self)
+		self.end = "_if_end_%s"%id(self)
 		cmp.falseJumpTo(self.false)
 		self.asm = [ cmp ]
 		#TODO if there is no false, dont jump after true
@@ -241,6 +241,10 @@ class Loop(Basic):
 		self.asm.append(asm.Asm("jmp "+self.start, lvl+1))
 		self.asm.append(asm.Asm(self.end+":", lvl))
 
+def comment(r, l):
+	c = r.getTill("\n")[:-1]
+	return [str(asm.Asm("", l, c)),]
+
 def get_block(r, lvl):
 	insts = []
 	while r.level >lvl:
@@ -281,13 +285,17 @@ def parse_condition(r, lvl):
 
 	true = get_block(r, lvl)
 	r.stripBlankLines()
-	r.lstrip()
+	_lv = r.level
+	_sp = r.lstrip()
 	false =  []
 	if r.get(["else"]):
 		r.lstrip()
 		if not r.get(":"): raise Hell("What about the ':'?")
 		r.stripBlankLines()
 		false = get_block(r, lvl)
+	else:
+		r.l = _sp + r.l
+		r.level = _lv
 	return Condition(c, true, false, lvl)
 
 
@@ -375,6 +383,35 @@ def parse_var(r, lvl=0):
 	v = Var(name, val, taip, lvl )
 	return str(v)#para sacar cuando saque los vars a los funcs
 
+def parse_exp(r, lvl=0): #expressions are separated by \n so one liners here only, level cares not
+	print ("parsing expression", repr(r.l))
+	l = r.level
+	insts = []
+	spaces = r.getWhile(blank)
+	#1str try pass
+	#if r.get(["pass",]):
+	#	print("just a pass")
+	#	insts.append(asm.Asm("nop", lvl))
+	#	r.getWhile(blank)
+	#	r.getWhile(nl)
+	#try var declaration
+	#todo remove "var"
+	if r.get(["var"]):
+		parse_var(r, lvl)
+	elif r.get(["if"]):
+		insts.append(parse_condition(r, lvl))
+	elif r.get(["for"]):
+		insts.append(parse_loop(r, lvl))
+	elif r.get(["·"]):
+		insts.extend(comment(r, lvl))#todo, why comment returns a list?
+	elif r.get(["asm"]):
+		insts.extend(asm.parse_asm(r, lvl))#todo why returns list too (must be because of global)
+	else:#todo put asm here too
+		print ("is another thing ")
+		t = parse_real_exp(r, lvl)
+		insts.append(t)
+	return insts
+
 def parse_real_exp(r, lvl=0):
 	"tries to parse an expression"
 	#TODO this will need major refactoring when the expressions are done
@@ -391,28 +428,4 @@ def parse_real_exp(r, lvl=0):
 		ret = act(r)
 		if ret : return ret
 
-def parse_exp(r, lvl=0): #expressions are separated by \n so one liners here only, level cares not
-	print ("parsing expression", repr(r.l))
-	l = r.level
-	insts = []
-	r.getWhile(blank)
-	#1str try pass
-	#if r.get(["pass",]):
-	#	print("just a pass")
-	#	insts.append(asm.Asm("nop", lvl))
-	#	r.getWhile(blank)
-	#	r.getWhile(nl)
-	#try var declaration
-	#todo remove "var"
-	if r.get(["var"]):
-		parse_var(r, lvl)
-	elif r.get(["if"]):
-		insts.append(parse_condition(r, lvl))
-	elif r.get(["for"]):
-		insts.append(parse_loop(r, lvl))
-	else:
-		print ("is another thing ")
-		t = parse_real_exp(r, lvl)
-		insts.append(t)
-	return insts
 

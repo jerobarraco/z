@@ -79,6 +79,10 @@ def parse_proc(r, lvl=0):
 		print("level is wrong, quit")
 		return
 	from parsers import base
+	block = exp.get_block(r, mylvl)
+	proc.insts.extend(block)
+	return str(proc)
+
 	while r.level >mylvl :#todo parse_block
 		r.stripBlankLines()
 		try:
