@@ -39,8 +39,8 @@ _cmps = {
 	"<": "jl",
 	">": "jg",
 	"!=": "jne",
-	"<=":"jle",
-	">=": "jge"}
+	"=<":"jle",#the operator is important in this way
+	"=>": "jge"}#Todo fix
 
 class FunCall(Basic):#todo move to fun?
 	def __init__(self, name="", lvl=0, params=[]):

@@ -15,14 +15,15 @@ fun int main():
 	eax = @edx+4
 	hFileName = eax
 	open_r(int hFileName)
-	if eax >= 0:
-		
+	if eax => 0:
+		read(int hFile, str buffer, int buflen)
 		for pass ; eax != 0; read(int hFile, str buffer, int buflen):
 			readed = eax
 			print(str buffer, int readed)
 	· pass
 	· pass
 	· eax != 0
+
 	if eax != 0:
 		print(str saludo, int saludoLen)
 		quit()
