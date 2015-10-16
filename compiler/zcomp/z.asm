@@ -19,21 +19,40 @@ main:
 		push DWORD [hFileName] ;open_r param 0
 	call open_r
 	add esp, 4 ;end open_r
+	 ; pass
+	 ; pass
+	 ; pass
+		nop
+	_forstart_140325672794544:
+		cmp eax, 0
+		jne _forend_140325672794544 ;jump to true, below must be jmp to false
+		mov [readed], eax
+			push DWORD [readed] ;print param 0
+			push DWORD buffer ;print param 1
+		call print
+		add esp, 8 ;end print
+			push DWORD [buflen] ;read param 0
+			push DWORD buffer ;read param 1
+			push DWORD [hFile] ;read param 2
+		call read
+		add esp, 12 ;end read
+		jmp _forstart_140325672794544
+	_forend_140325672794544:
+	 ; pass
+	 ; pass
 	 ; eax != 0
 	cmp eax, 0
-	jne 4 ;jump to true, below must be jmp to false
-	jmp _false_140471409526600
-	nop
+	jne _false_140325672862272 ;jump to true, below must be jmp to false
 			push DWORD [saludoLen] ;print param 0
 			push DWORD saludo ;print param 1
 		call print
 		add esp, 8 ;end print
 		call quit
-	jmp _end_140471409526600
-	_false_140471409526600:
+	jmp _end_140325672862272
+	_false_140325672862272:
 		mov ebx, 4
 		nop
-	_end_140471409526600:
+	_end_140325672862272:
 	test eax, eax ; Check the output of open()
 	js terminate ; If the sign flag is set (positive) we can begin reading the file	; = If the output is negative, then open failed. So we should exit
 	mov [hFile], eax

@@ -116,29 +116,29 @@ class Cmp(Basic):
 	def __init__(self, cmp="==", ops=[], lvl = 0):
 		super().__init__("", lvl)
 		self.ops = tuple([i.ref() for i in ops])
-		j = _cmps[cmp]
+		self.j = _cmps[cmp]
+
+	def falseJumpTo(self, tag=None):
 		self.asm = [
 			asm.Asm( "cmp %s, %s"%self.ops, self.l),
-			asm.Asm(j+" 4", self.l, "jump to true, below must be jmp to false")#enough space to put the "false unconditional jump"
 		]
+		if tag :# note that setting tag to none effectively "removes" the jump
+			self.asm.append(asm.Asm(self.j+" "+tag, self.l, "jump to true, below must be jmp to false"))#enough space to put the "false unconditional jump"
+
 
 class Condition(Basic):
 	def __init__(self, cmp, true=[], false=[], lvl = 0):
 		super().__init__("", lvl)
 		self.false = "_false_%s"%id(self)
 		self.end = "_end_%s"%id(self)
-		self.asm = [
-			cmp,
-			asm.Asm("jmp "+self.false, lvl),
-			asm.Asm("nop", lvl),#extra 4 byets
-		]
+		cmp.falseJumpTo(self.false)
+		self.asm = [ cmp ]
 		#TODO if there is no false, dont jump after true
 		self.asm.extend(true)
 		self.asm.append(asm.Asm("jmp "+self.end, lvl))
 		self.asm.append(asm.Asm(self.false+":", lvl))
 		self.asm.extend(false)
 		self.asm.append(asm.Asm(self.end+":", lvl))
-
 
 class Identifier:
 	size = 4
@@ -203,7 +203,7 @@ class Identifier:
 
 	def tryLen(self, r): pass
 	def tryMath(self, r): pass #this probably needs to call parse_real_exp
-	def tryCmp(self, r, lvl=0):
+	def tryCmp(self, r):
 		r.lstrip()
 		c = r.get(list(_cmps.keys()))
 		if not c : return
@@ -223,6 +223,24 @@ class Identifier:
 			raise Exception(" > value or identifier expected")
 		return Assign(self, i, self.l)
 
+class Loop(Basic):
+	def __init__(self, pre, cmp, inc, block, lvl = 0):
+		super().__init__("", lvl)
+		#self.false = "_for_%s"%id(self)
+		self.end = "_forend_%s"%id(self)
+		self.start = "_forstart_%s"%id(self)
+		cmp.falseJumpTo(self.end)
+		self.asm = [
+			pre,
+			asm.Asm(self.start+":", lvl),
+			cmp,
+		]
+		#TODO if there is no false, dont jump after true
+		self.asm.extend(block)
+		self.asm.append(inc)
+		self.asm.append(asm.Asm("jmp "+self.start, lvl+1))
+		self.asm.append(asm.Asm(self.end+":", lvl))
+
 def get_block(r, lvl):
 	insts = []
 	while r.level >lvl:
@@ -230,11 +248,31 @@ def get_block(r, lvl):
 		r.stripBlankLines()
 	return insts
 
+def parse_loop(r, lvl):
+	r.lstrip()
+	pre = parse_real_exp(r, lvl+1)
+
+	r.lstrip()
+	if not r.get(";"): raise Hell( "You need a ;")
+	r.lstrip()
+	cond = parse_real_exp(r, lvl+1)
+
+	r.lstrip()
+	if not r.get(";"): raise Hell( "You need a ;")
+	r.lstrip()
+	inc = parse_real_exp(r, lvl+1)
+
+	r.lstrip()
+	if not r.get(":"): raise Hell( "You need a :")
+	r.stripBlankLines()
+	block = get_block(r, lvl)
+	return Loop(pre, cond, inc, block, lvl)
+
 def parse_condition(r, lvl):
 	r.lstrip()
 	i = get_ident(r, lvl)
 	if not i: raise Hell("identifier expected")
-	c = i.tryCmp(r, lvl)
+	c = i.tryCmp(r)
 	if not c: #literal if ( ej if (x))
 		c = Cmp("!=", [i, Identifier(0)])
 
@@ -343,6 +381,10 @@ def parse_real_exp(r, lvl=0):
 	r.getWhile(blank)
 	ident = get_ident(r, lvl)
 	if not ident: return
+	if ident.n == "pass":
+		ret = asm.Asm("nop", lvl)
+		r.stripBlankLines()
+		return ret
 	#try to see if its a calling
 	for act in (ident.trySet, ident.tryCall, ident.tryLen,
 				ident.tryMath, ident.tryCmp):
@@ -355,17 +397,19 @@ def parse_exp(r, lvl=0): #expressions are separated by \n so one liners here onl
 	insts = []
 	r.getWhile(blank)
 	#1str try pass
-	if r.get(["pass",]):
-		print("just a pass")
-		insts.append(asm.Asm("nop", lvl))
-		r.getWhile(blank)
-		r.getWhile(nl)
+	#if r.get(["pass",]):
+	#	print("just a pass")
+	#	insts.append(asm.Asm("nop", lvl))
+	#	r.getWhile(blank)
+	#	r.getWhile(nl)
 	#try var declaration
 	#todo remove "var"
-	elif r.get(["var"]):
+	if r.get(["var"]):
 		parse_var(r, lvl)
 	elif r.get(["if"]):
 		insts.append(parse_condition(r, lvl))
+	elif r.get(["for"]):
+		insts.append(parse_loop(r, lvl))
 	else:
 		print ("is another thing ")
 		t = parse_real_exp(r, lvl)

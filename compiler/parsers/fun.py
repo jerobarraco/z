@@ -79,7 +79,7 @@ def parse_proc(r, lvl=0):
 		print("level is wrong, quit")
 		return
 	from parsers import base
-	while r.level >mylvl :
+	while r.level >mylvl :#todo parse_block
 		r.stripBlankLines()
 		try:
 			proc.insts.extend(base.parse_global(r))
