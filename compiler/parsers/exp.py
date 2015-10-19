@@ -1,7 +1,7 @@
 #coding:utf-8
 import traceback
 from parsers.com import letters, blank, blanknl, nl, nums, Hell, Basic
-from parsers import asm, com
+from parsers import asm, com, math
 
 #lets have modules! Yay!
 #now let's put everything important into one big file! Yay!
@@ -67,15 +67,19 @@ class FunCall(Basic):#todo move to fun?
 			return
 
 		params = list(reversed(params))
-		s =  "push %s %s"
 		for i, p in enumerate(params):
-			size = p.is_ref and 4 or p.size
-			self.asm.append(asm.Asm(s%(com.sizes[size], p.ref()), lvl+1, "%s param %s"%(self.name, i)))
+			self.asm.append(asm.PushPop(p, False, lvl+1, "%s param %s"%(self.name, i)))
+			#size = p.is_ref and 4 or p.size
+			#self.asm.append(asm.Asm(s%(com.sizes[p.size], p.ref()), lvl+1, "%s param %s"%(self.name, i)))
 
 		self.asm.append( asm.Asm("call "+name, lvl) )
 		totsize = sum([i.size for i in params])
 		if totsize:
 			self.asm.append( asm.Asm("add esp, "+str(totsize), lvl, "end %s"%self.name))
+
+	def result(self):
+		#todo func return type
+		return Identifier("eax", 0, "int")
 
 """DB - Define Byte. 8 bits
 DW - Define Word. Generally 2 bytes on a typical x86 32-bit system
@@ -120,7 +124,12 @@ class Assign(Basic):
 		#	ops[1] = s+ " "+ ops[1]
 		#if isinstance(val, Cmp):
 		#	#if its a comparison let's put some tricks
-		self.asm = [asm.Asm("mov %s, %s"%(self.name.ref(), self.v.ref()), self.l),]
+		if isinstance(val, Identifier) or isinstance(val, str):
+			self.asm = [asm.Asm("mov %s, %s"%(self.name.ref(), self.v.ref()), self.l),]
+		else:
+			#TOdO multyexpression, funccall
+			self.asm = val.asm[:]
+			self.asm.append(asm.Asm("mov %s, %s"%(self.name.ref(), self.v.result().ref()), self.l))
 
 class Cmp(Basic):
 	def __init__(self, cmp="==", ops=[], lvl = 0):
@@ -194,7 +203,7 @@ class Identifier:
 			#	self.is_ref = False
 			#	self.is_ref = not self.is_ref
 
-	def refSize(self):
+	def refSize(self):#shouldnt exist
 		return self.is_ref and 4 or self.size
 
 	def ref(self):
@@ -203,7 +212,7 @@ class Identifier:
 	def __str__(self):#todo change where this is necesary and use self.n instead, and use .ref() as __str__ (maybe)
 		return self.n
 
-	def tryCall(self, r):
+	def tryCall(self, r, lvl =0):
 		try:
 			r.getWhile(blank)
 			if not r.get("("): #opened
@@ -221,9 +230,20 @@ class Identifier:
 			print("lol not callable expression, i don't now anything else")
 		return None
 
-	def tryLen(self, r): pass
-	def tryMath(self, r): pass #this probably needs to call parse_real_exp
-	def tryCmp(self, r):
+	def tryLen(self, r, lvl=0): pass
+	def tryMath(self, r, lvl=0):
+		#this probably needs to call parse_real_exp
+		#todo careful to not collide with pointer arithmetic expressions
+		r.lstrip()
+		op = r.get("+-*/%")
+		if not op : return
+		#todo multiexpress parse_real_expression
+		i = parse_real_exp(r, lvl)
+		if not i: raise Hell("identifier expected")
+		if op == "+":
+			return math.Add(self, i)
+
+	def tryCmp(self, r, lvl =0):
 		r.lstrip()
 		c = None
 		for i in list(sorted(_cmps.keys(), key=len, reverse=True)): #get order just the opposite as we need so force it.
@@ -235,16 +255,19 @@ class Identifier:
 			raise Exception ("> other identifier expected got this ", repr(r.l))
 		return Cmp(c, [self, other], self.l)
 
-	def trySet(self, r):
+	def trySet(self, r, lvl = 0):
 		r.lstrip()
 		if not r.get("="): return
 		#todo parse_true_real_exp
-		r.lstrip(True)
-		i = get_ident(r)#todo parse_real_exp
-		if not i:
+
+		r.lstrip()
+		exp = parse_real_exp(r, r.level)
+		#i = get_ident(r)#todo parse_real_exp
+		if not exp:
 			#i = r.getWhile(nums) #todo getNum
 			raise Exception(" > value or identifier expected got ",repr(r.l))
-		return Assign(self, i, self.l)
+		#if isinstance(exp, Identifier):
+		return Assign(self, exp, self.l)
 
 class Loop(Basic):
 	def __init__(self, pre, cmp, inc, block, lvl = 0):
@@ -275,11 +298,13 @@ def get_block(r, lvl):
 		r.stripBlankLines()
 	return insts
 
-def parsePushPop(r, ispush, lvl):
+def parsePushPop(r, ispop, lvl):
 	r.lstrip()
 	i = get_ident(r, lvl)
 	if not i: raise Hell ("Identifier expected")
-	p = asm.Pop(i)
+	p = asm.PushPop(i, ispop, lvl)
+	return p
+
 def parse_loop(r, lvl):
 	r.lstrip()
 	pre = parse_real_exp(r, lvl+1)
@@ -434,18 +459,20 @@ def parse_exp(r, lvl=0): #expressions are separated by \n so one liners here onl
 		insts.extend(comment(r, lvl))#todo, why comment returns a list?
 	elif r.get(["asm"]):
 		insts.extend(asm.parse_asm(r, lvl))#todo why returns list too (must be because of global)
-	elif r.get(["pop"]):
-		insts.append(asm.parse_pop(r, lvl))
-	else:#todo put asm here too
-		print ("is another thing ")
-		t = parse_real_exp(r, lvl)
-		insts.append(t)
+	else:
+		ret = r.get(["pop", "push"])
+		if ret:
+			insts.append(parsePushPop(r, ret == "pop", lvl))
+		else:#todo put asm here too
+			print ("is another thing ")
+			t = parse_real_exp(r, lvl)
+			insts.append(t)
 	return insts
 
 def parse_real_exp(r, lvl=0):
 	"tries to parse an expression"
 	#TODO this will need major refactoring when the expressions are done
-	r.getWhile(blank)
+	r.lstrip()
 	ident = get_ident(r, lvl)
 	if not ident: return
 	if ident.n == "pass":
@@ -455,7 +482,8 @@ def parse_real_exp(r, lvl=0):
 	#try to see if its a calling
 	for act in (ident.trySet, ident.tryCall, ident.tryLen,
 				ident.tryMath, ident.tryCmp):
-		ret = act(r)
+		ret = act(r, lvl)
 		if ret : return ret
+	return ident # needed to use real_exp in other expressions
 
 

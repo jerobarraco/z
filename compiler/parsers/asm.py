@@ -15,14 +15,15 @@ class Asm:
 		return s
 
 class PushPop(com.Basic):
-	def __init__(self, ident, ispush=True, lvl=0):
-		super().__init__(str(ident), lvl)
+	def __init__(self, ident, ispop=True, lvl=0, comment=""):
+		super().__init__(str(ident), lvl, )
 		self.i = ident
-		a = ispush and "push " or "pop "
+		self.pop = ispop
+		a = self.pop and "pop " or "push "
 		if not ident.is_reg:
 			a += com.sizes[ident.size] + " "
 		a += ident.ref()
-		self.asm = [ Asm(a, lvl) ]
+		self.asm = [ Asm(a, lvl, comment) ]
 
 def parse_asm_line(r, lvl=0):
 	print("inside asm_line")

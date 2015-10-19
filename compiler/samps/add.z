@@ -1,0 +1,15 @@
+asm:
+	extern	printf
+	extern	scanf
+	SECTION .data
+
+var str mes = "Enter two numbers to add%d"
+var str scan = "%d%d"
+var int a = 0
+var int b = 0
+var int c = 0
+
+fun main():
+	push ebp
+	ebp = esp
+	printf(str mes, int a)

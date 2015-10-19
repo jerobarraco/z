@@ -54,9 +54,16 @@ class Hell(Exception):pass
 
 class Basic:
 	def __init__(self, name="", lvl=0):
-		self.name = name
+		self.res = self.name = name
 		self.l = lvl
 		self.asm = []
+
+	def result(self):
+		print (" > !STUB basic.result")
+		from parsers import exp
+		if isinstance(self.res, exp.Identifier):
+			return self.res
+		return exp.Identifier(self.res, self.l, "int")
 
 	def __str__(self):
 		return "".join(map(str, self.asm))
