@@ -1,3 +1,4 @@
+· http://www.programmingsimplified.com/c-program-add-two-numbers
 asm:
 	extern	printf
 	extern	scanf
@@ -5,6 +6,7 @@ asm:
 
 var str mes = "Enter two numbers to add\n"
 var str scan = "%d%d"
+var str mesres = "Sum of entered numbers = %d\n"
 var int a = 0
 var int b = 0
 var int c = 0
@@ -12,4 +14,7 @@ var int c = 0
 fun main():
 	push ebp
 	ebp = esp
-	printf(str mes, int a)
+	printf(str mes)
+	scanf(str scan, ptr a, ptr b)
+	c = a+b
+	printf(str mesres, int c)
