@@ -141,15 +141,17 @@ class Assign(Basic):
 class Cmp(Basic):
 	def __init__(self, cmp="==", ops=[], lvl = 0):
 		super().__init__("", lvl)
-		self.ops = tuple([i.ref() for i in ops])
+		self.s = com.sizes[ops[0].size]
+		self.ops = (self.s,)+tuple([i.ref() for i in ops])
+
 		self.j = _cmpsn[cmp]
 
 	def falseJumpTo(self, tag=None):
 		self.asm = [
-			asm.Asm( "cmp %s, %s"%self.ops, self.l),
+			asm.Asm( "cmp %s %s, %s"%self.ops, self.l),
 		]
 		if tag :# note that setting tag to none effectively "removes" the jump
-			self.asm.append(asm.Asm(self.j+" "+tag, self.l, "jump to true, below must be jmp to false"))#enough space to put the "false unconditional jump"
+			self.asm.append(asm.Asm(self.j+" "+tag, self.l, "jump to false, below is 'true'"))
 
 
 class Condition(Basic):

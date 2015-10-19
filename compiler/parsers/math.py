@@ -6,7 +6,7 @@ class Add(com.Basic):
 	def __init__(self, a, b, lvl=0, c='' ):
 		n = "add "+str(a)+"+"+str(b)
 		if not c: c = n
-		super().__init__(n, lvl)
+		super().__init__(n, lvl, c)
 		reg = "eax"
 		if a.n == reg:
 			reg = "edx"

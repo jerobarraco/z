@@ -14,12 +14,10 @@ fun int main():
 	edx = @+8
 	eax = @edx+4
 	hFileName = eax
-	open_r(int hFileName)
-	if eax >= 01:
-		hFile = eax
-		read(int hFile, str buffer, int buflen)
-		for pass ; eax > 0; read(int hFile, str buffer, int buflen):
-			readed = eax
+	hFile = open_r(int hFileName)
+	if hFile >= 01:
+		readed = read(int hFile, str buffer, int buflen)
+		for pass ; readed > 0; readed = read(int hFile, str buffer, int buflen):
 			print(str buffer, int readed)
 
 · now with 100% more comments
