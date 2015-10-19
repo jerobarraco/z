@@ -75,24 +75,6 @@ def parse_proc(r, lvl=0):
 	proc = Fun(name, l, pars)
 	print ("level is ", r.level)
 
-	if l<=mylvl:
-		print("level is wrong, quit")
-		return
-	from parsers import base
 	block = exp.get_block(r, mylvl)
 	proc.insts.extend(block)
-	return str(proc)
-
-	while r.level >mylvl :#todo parse_block
-		r.stripBlankLines()
-		try:
-			proc.insts.extend(base.parse_global(r))
-		except Exception as e:
-			#try instructions
-			print("mylvl", mylvl, "lvl", r.level)
-			res = exp.parse_exp(r, r.level)
-			if res:
-				proc.insts.extend(res)
-			else:
-				print("some instruction i dont understand")
 	return str(proc)

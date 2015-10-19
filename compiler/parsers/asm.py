@@ -2,17 +2,27 @@
 from parsers import com
 
 class Asm:
-	def __init__(self, c=0, l=0, com=""):
-		self.c = c
-		self.l = l
+	def __init__(self, inst=0, lvl=0, com=""):
+		self.inst = inst
+		self.lvl = lvl
 		self.com = com
 
 	def __str__(self):
-		s =  (self.l*"\t")+self.c
+		s =  (self.lvl*"\t")+self.inst
 		if self.com:
 			s += " ;"+self.com
 		s += com.nl
 		return s
+
+class PushPop(com.Basic):
+	def __init__(self, ident, ispush=True, lvl=0):
+		super().__init__(str(ident), lvl)
+		self.i = ident
+		a = ispush and "push " or "pop "
+		if not ident.is_reg:
+			a += com.sizes[ident.size] + " "
+		a += ident.ref()
+		self.asm = [ Asm(a, lvl) ]
 
 def parse_asm_line(r, lvl=0):
 	print("inside asm_line")
@@ -43,5 +53,4 @@ def parse_asm(r, lvl =0):
 		print("inside asm")
 		lines.append(parse_asm_line(r, mylvl))
 		r.stripBlankLines()
-
 	return list(map(str, lines))

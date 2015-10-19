@@ -1,32 +1,31 @@
 #coding:utf-8
 import traceback
-from urllib.response import addbase
-from parsers.com import letters, blank, blanknl, nl, nums, Hell
-from parsers import asm
+from parsers.com import letters, blank, blanknl, nl, nums, Hell, Basic
+from parsers import asm, com
 
+#lets have modules! Yay!
+#now let's put everything important into one big file! Yay!
+#todo refactor
 
-class Basic:
-	def __init__(self, name="", lvl=0):
-		self.name = name
-		self.l = lvl
-		self.asm = []
-	def __str__(self):
-		return "".join(map(str, self.asm))
-
-#It is necessary that the procedure preserve the contents of the registers ESI, EDI, EBP, and all segment registers. If these registers are corrupted, it is possible that the computer will produce errors when returning to the calling C program.
+#It is necessary that the procedure preserve the contents of the registers ESI, EDI, EBP, and all segment registers.
+#If these registers are corrupted, it is possible that the computer will produce errors when returning to the calling C program.
 #When C executes the function call to Sum, it pushes the input arguments onto the stack in reverse order, then executes a call to Sum.
 #the assembly code returns the value of the result to the C program through EAX implicitly.
-"""Assembly can return values to the C calling program using only the EAX register. If the returned value is only four bytes or less, the result is returned in register EAX. If the item is larger than four bytes, a pointer is returned in EAX which points to the item. Here is a short table of the C variable types and how they are returned by the assembly code:
+"""Assembly can return values to the C calling program using only the EAX register.
+If the returned value is only four bytes or less, the result is returned in register EAX.
+If the item is larger than four bytes, a pointer is returned in EAX which points to the item.
+Here is a short table of the C variable types and how they are returned by the assembly code:
 
 Data Type	Register
 char	AL
 short	AX
 int, long, pointer (*)	EAX
 """
+#why the fuck it returns char on AL but short on AX?! whats the big difference?!!!
+
 _types = ['byte', 'short', 'int', 'str', 'ptr']
 _tsizes = [1, 2, 4, 4, 4]
 _trefs = _types[-2:]
-_sizes = {1:'BYTE', 2:'WORD', 4:'DWORD'}#1, 2, 4 bytes
 _regs = [
 	"eax", "ax", "ah", "al",
 	"ebx", "bx", "bh", "bl",
@@ -34,13 +33,15 @@ _regs = [
 	"edx", "dx", "dh", "dl",
 	"edi", "esi", "ebp", "esp"
 ]
+
 _cmps = {
 	"==": "je",
 	"<": "jl",
 	">": "jg",
 	"!=": "jne",
 	"<=":"jle",#the operator is important in this way
-	">=": "jge"}#Todo fix
+	">=": "jge"
+}#Todo fix
 
 _cmpsn = {
 	"==": "jne",
@@ -48,7 +49,8 @@ _cmpsn = {
 	">": "jng",
 	"!=": "je",
 	"<=":"jg",#the operator is important in this way
-	">=": "jl"}#Todo fix
+	">=": "jl"
+}#Todo fix
 
 class FunCall(Basic):#todo move to fun?
 	def __init__(self, name="", lvl=0, params=[]):
@@ -68,7 +70,7 @@ class FunCall(Basic):#todo move to fun?
 		s =  "push %s %s"
 		for i, p in enumerate(params):
 			size = p.is_ref and 4 or p.size
-			self.asm.append(asm.Asm(s%(_sizes[size], p.ref()), lvl+1, "%s param %s"%(self.name, i)))
+			self.asm.append(asm.Asm(s%(com.sizes[size], p.ref()), lvl+1, "%s param %s"%(self.name, i)))
 
 		self.asm.append( asm.Asm("call "+name, lvl) )
 		totsize = sum([i.size for i in params])
@@ -176,19 +178,29 @@ class Identifier:
 			self.size = 4
 
 		self.is_ref = False
-		self.is_reg = sum(map(self.n.startswith, _regs))>0
+		self.is_reg = sum(map(self.n.startswith, com.regs))>0
 		if not self.is_type:
 			self.is_ref = not (self.const or self.is_reg )#t in _trefs
 			if self.mytype in _trefs:
 				self.is_ref = not self.is_ref# looks like an optimization, hard to explain
-
+		if self.is_reg:
+			if self.n in com.regs1:
+				self.size = 1
+			elif self.n in com.regs2:
+				self.size = 2
+			else:
+				self.size = 4
 			#if self.is_reg:
 			#	self.is_ref = False
 			#	self.is_ref = not self.is_ref
+
+	def refSize(self):
+		return self.is_ref and 4 or self.size
+
 	def ref(self):
 		return self.is_ref and "[%s]"%self.n or self.n
 
-	def __str__(self):
+	def __str__(self):#todo change where this is necesary and use self.n instead, and use .ref() as __str__ (maybe)
 		return self.n
 
 	def tryCall(self, r):
@@ -263,6 +275,11 @@ def get_block(r, lvl):
 		r.stripBlankLines()
 	return insts
 
+def parsePushPop(r, ispush, lvl):
+	r.lstrip()
+	i = get_ident(r, lvl)
+	if not i: raise Hell ("Identifier expected")
+	p = asm.Pop(i)
 def parse_loop(r, lvl):
 	r.lstrip()
 	pre = parse_real_exp(r, lvl+1)
@@ -417,6 +434,8 @@ def parse_exp(r, lvl=0): #expressions are separated by \n so one liners here onl
 		insts.extend(comment(r, lvl))#todo, why comment returns a list?
 	elif r.get(["asm"]):
 		insts.extend(asm.parse_asm(r, lvl))#todo why returns list too (must be because of global)
+	elif r.get(["pop"]):
+		insts.append(asm.parse_pop(r, lvl))
 	else:#todo put asm here too
 		print ("is another thing ")
 		t = parse_real_exp(r, lvl)

@@ -8,8 +8,9 @@
 				* level
 				* sorted by len scan
 			new flow
+				0) Have one GLOBAL admin to request stuff (var creation, var info, block info, etc)
 				1) change multiline expressions to oneliners
-					( strings, parenthesis, enums, math)
+					(strings, parenthesis, enums, math)
 				2) divide blocks
 				3) parse block identifier
 				4) Mark module as loaded, import other modules
@@ -19,12 +20,19 @@
 		* COMMENTS!!!! (one liners at least)
 		Instructions
 			* Literas (only numbers)
-			Literals (strings or chars)
+			Literals (strings or chars) (needs _global admin_ to create vars outside block)
+				char 
+				arrays (strings)
 			* Variables
 			Expressions
 				* Assignment
-				Boolean (for ifs)
+				* Boolean (for ifs)
+				var size
+				result_in
 				Math
+				push
+				pop
+				
 			Functions
 				* definition
 				calling
@@ -34,16 +42,16 @@
 						* pass
 						param name
 					return values
-			Branch
-				If
-			Loops
-				While
-				for
-				
+			* Branch
+				* If
+			* Loops
+				* While (nobody needs a while when there's a for)
+				* for
+				foritch (foreach)
 		Struct
 			Types
 			data structures
 			metainfo
 		Const
 			data types
-		Namespaces (honk honk cheen)
+		Namespaces (honk honk cheeen)
