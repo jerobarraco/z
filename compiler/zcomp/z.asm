@@ -7,7 +7,7 @@ hFileName: dd 0
 readed: dd 0
 buflen: dd 2048
 saludo: db 'Bienvenidos a el compilador Z, por favor llame con el nombre de archivo *.z a parsear',0
-saludoLen: dd 85
+saludoLen: dd 89
 	section .text ; ; code goes here
 	global main ; ;entry point
 _start:
@@ -20,7 +20,7 @@ main:
 	call open_r
 	add esp, 4 ;end open_r
 	cmp eax, 01
-	jl _if_else_139932991864784 ;jump to true, below must be jmp to false
+	jl _if_else_139686860205304 ;jump to true, below must be jmp to false
 		mov [hFile], eax
 			push DWORD [buflen] ;read param 0
 			push DWORD buffer ;read param 1
@@ -28,9 +28,9 @@ main:
 		call read
 		add esp, 12 ;end read
 			nop
-		_forstart_139932991936160:
+		_forstart_139686860207048:
 			cmp eax, 0
-			jng _forend_139932991936160 ;jump to true, below must be jmp to false
+			jng _forend_139686860207048 ;jump to true, below must be jmp to false
 			mov [readed], eax
 				push DWORD [readed] ;print param 0
 				push DWORD buffer ;print param 1
@@ -41,11 +41,11 @@ main:
 				push DWORD [hFile] ;read param 2
 			call read
 			add esp, 12 ;end read
-			jmp _forstart_139932991936160
-		_forend_139932991936160:
-	jmp _if_end_139932991864784
-	_if_else_139932991864784:
-	_if_end_139932991864784:
+			jmp _forstart_139686860207048
+		_forend_139686860207048:
+	jmp _if_end_139686860205304
+	_if_else_139686860205304:
+	_if_end_139686860205304:
 	;exiting!
 	mov eax, 1
 	mov ebx, 0

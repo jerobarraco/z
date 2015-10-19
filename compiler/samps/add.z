@@ -3,7 +3,7 @@ asm:
 	extern	scanf
 	SECTION .data
 
-var str mes = "Enter two numbers to add%d"
+var str mes = "Enter two numbers to add\n"
 var str scan = "%d%d"
 var int a = 0
 var int b = 0

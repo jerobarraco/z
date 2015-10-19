@@ -103,8 +103,15 @@ class Var:
 			self.asm = [ asm.Asm(name.n+": "+v[t]+" "+str(val), lvl), ]
 		elif t == "str":
 			val = str(val)
+			val = val.replace("\\n", "',10,'")
+			val = "'"+val
+			if val.endswith(",'"):
+				val = val[:-1]
+			else:
+				val += "',"
+			val += "0"
 			self.asm = [
-				asm.Asm(name.n+": db '"+val+"',0", lvl),
+				asm.Asm(name.n+": db "+val, lvl),
 				asm.Asm(name.n+"Len: dd %s"%len(val), lvl)
 				#TODO until i have a way to get the information of the variables everything must be dd for calling functions
 			]
