@@ -1,0 +1,24 @@
+asm:
+	extern	printf		; the C function, to be called
+	extern scanf
+	SECTION .data	
+var str intro ="Enter a number"
+var str input = "%d"
+var str pos = "%d is a positive number"
+var str neg = "%d is a negative number"
+var str msg = "0"
+var int number = 0
+
+fun main():
+	printf(str intro)
+	scanf(str input, ptr number)
+	printf(str pos, int number)
+	eax = number
+	if eax >= 0:
+		printf(str pos, int number)
+	else:
+		printf(str neg, int number)
+	printf(str intro)
+	
+· C program to check whether a given integer is positive
+· or negative
