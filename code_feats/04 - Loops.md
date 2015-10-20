@@ -91,4 +91,4 @@ z:
 for (;q=read();):
 	something<q>
 	
-Im not actually sure to include this kind of side-effect
+Im not actually sure to include this kind of side-effect (assignment on evaluation)
