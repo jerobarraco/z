@@ -245,7 +245,7 @@ class Identifier:
 		#todo careful to not collide with pointer arithmetic expressions
 		r.lstrip()
 		unary = r.get(["++", "--"])
-		if unary : raise Hell ("lol stub")#todo inc/dec
+		if unary : raise Hell ("lol stub")
 		op = r.get("+-*/%")
 		if not op : return
 		#todo multiexpress parse_real_expression
