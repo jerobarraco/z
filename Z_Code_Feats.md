@@ -1,4 +1,4 @@
-00 Syntax (General)
+[00 Syntax (General)](code_feats/00-Syntax.md)
 01 Variables
 02 Expressions
 03 Decision controls
