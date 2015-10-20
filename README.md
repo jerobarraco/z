@@ -28,5 +28,5 @@ This README would normally document whatever steps are necessary to get your app
 ### Who do I talk to? ###
 
 * Jerónimo Barraco Mármol (BDFL)
-* [MoongateIRC](irc://irc.rizon.net/#moongate)
-* [Z Irc](irc://irc.freenode.net/#Z)
+* [#Moongate @ irc.rizon.net](irc://irc.rizon.net/#moongate)
+* [#Z @ irc.freenode.net](irc://irc.freenode.net/#Z)
