@@ -52,7 +52,7 @@ Much like recursion or stacking results.
 
 	a+b+c -> a.add(b.add(c))
 
-Only problem would be to distinguish between a substraction (operation) and a negative constant.
+The enly problem would be to distinguish between a substraction (operation) and a negative constant.
 
 	-4	-> not X.sub(4) though is notable that it would be the same as 0.sub(4)
 	But is not a big problem.
