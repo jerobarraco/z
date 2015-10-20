@@ -1,5 +1,7 @@
 #coding: utf-8
+"""Should be "arithmetic" but math is shorter"""
 __author__ = 'nande'
+
 from parsers import com, asm
 
 class Add(com.Basic):
@@ -30,3 +32,12 @@ class Sub(com.Basic):
 		self.asm.append(asm.Asm("mov %s, %s"%(reg, a.ref()), lvl, "sub op 1"))
 		self.asm.append(asm.Asm("sub %s, %s"%(reg, b.ref()), lvl, "sub op 2"))
 		self.res = reg
+
+class IncDec(com.Basic):
+	def __init__(self, a, lvl=0, c='', is_inc=True ):
+		n = "incdec "+str(a)
+		if not c: c = n
+		super().__init__(n, lvl)
+		op = is_inc and "inc" or "dec"
+		self.asm = [asm.Asm(op + a.ref(), lvl, c),]
+		self.res = a

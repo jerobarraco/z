@@ -36,13 +36,16 @@
 			Expressions
 				* Assignment
 				* Boolean (for ifs)
-				var_size (needs global)
-				result_in
-				Math
 				* push
 				* pop
+				result_in
+				Math
+					* Add, Sub
+					Div, Mul, Mod, inc/dec
+				Bool
+					not, and, or, xor
+				var_size (needs global)
 				Multiple expressions (ie if func()==3)
-				inc/dec
 			Functions
 				* definition
 				calling

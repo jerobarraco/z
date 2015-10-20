@@ -256,7 +256,7 @@ class Identifier:
 		elif op == "-":
 			return math.Sub(self, i)
 
-	def tryCmp(self, r, lvl =0):
+	def tryCmp(self, r, lvl=0):
 		r.lstrip()
 		c = None
 		for i in list(sorted(_cmps.keys(), key=len, reverse=True)): #get order just the opposite as we need so force it.
