@@ -23,9 +23,10 @@ This README would normally document whatever steps are necessary to get your app
 * Writing tests
 * Code review
 * Other guidelines
+* [Contributors](contributors.md)
 
 ### Who do I talk to? ###
 
 * Jerónimo Barraco Mármol (BDFL)
-* #moongate@irc.rizon.net
-* #z@irc.freenode.net
+* [MoongateIRC](irc://irc.rizon.net/#moongate)
+* [Z Irc](irc://irc.freenode.net/#Z)
