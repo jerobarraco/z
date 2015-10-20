@@ -6,7 +6,7 @@ class Add(com.Basic):
 	def __init__(self, a, b, lvl=0, c='' ):
 		n = "add "+str(a)+"+"+str(b)
 		if not c: c = n
-		super().__init__(n, lvl, c)
+		super().__init__(n, lvl)
 		reg = "eax"
 		if a.n == reg:
 			reg = "edx"
@@ -14,4 +14,19 @@ class Add(com.Basic):
 		self.asm = []
 		self.asm.append(asm.Asm("mov %s, %s"%(reg, a.ref()), lvl, "add op 1"))
 		self.asm.append(asm.Asm("add %s, %s"%(reg, b.ref()), lvl, "add op 2"))
+		self.res = reg
+		#adc can be used to add two-register-long numbers (ie 64b on 32b)
+
+class Sub(com.Basic):
+	def __init__(self, a, b, lvl=0, c='' ):
+		n = "sub "+str(a)+"+"+str(b)
+		if not c: c = n
+		super().__init__(n, lvl)
+		reg = "eax"
+		if a.n == reg:
+			reg = "edx"
+
+		self.asm = []
+		self.asm.append(asm.Asm("mov %s, %s"%(reg, a.ref()), lvl, "sub op 1"))
+		self.asm.append(asm.Asm("sub %s, %s"%(reg, b.ref()), lvl, "sub op 2"))
 		self.res = reg

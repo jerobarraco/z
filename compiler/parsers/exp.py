@@ -244,6 +244,8 @@ class Identifier:
 		#this probably needs to call parse_real_exp
 		#todo careful to not collide with pointer arithmetic expressions
 		r.lstrip()
+		unary = r.get(["++", "--"])
+		if unary : raise Hell ("lol stub")#todo inc/dec
 		op = r.get("+-*/%")
 		if not op : return
 		#todo multiexpress parse_real_expression
@@ -251,6 +253,8 @@ class Identifier:
 		if not i: raise Hell("identifier expected")
 		if op == "+":
 			return math.Add(self, i)
+		elif op == "-":
+			return math.Sub(self, i)
 
 	def tryCmp(self, r, lvl =0):
 		r.lstrip()
