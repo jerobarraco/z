@@ -17,16 +17,21 @@ Following this we could think the operators as methods of the operands.
 This could be desirable, specially if we strive to create user-defined types and overrideables operators.
 
 The more heavily affected operators would be:
-	
+
+	Note that Z doesn't target the creation of "Objects" (in this first stage) so this two aren't valid examples
 	creation
-		new a()	-> a.new()
+		new a()	-> a.new() or a()
+	deletion
+		delete a -> a.del() or a~ 
 			This is specially interesting as it makes specially obvious that all the classes should inherit from one
 			base class that handles memory for them. This could be specially powerfull but also confusing.
-			Also note that Z doesn't target the creation of "Objects".
 	
-	deletion
-		delete a -> a.del()
-		
+	the most problematic are the unary operator, because in C they tend to come before the operand. But that's 
+	exactly what brings problem in complex expressions.
+	This will likely feel unnatural, and also will look suboptimal because they'll require parenthesis for 
+	some of the expressions, but that compensates to the fact that in C you depend on "operation precedence"
+	and you need parethesis when they aren't obvious or play against you anyway.
+	
 	de/reference
 		&a -> a#
 		*a -> a*
@@ -35,8 +40,6 @@ The more heavily affected operators would be:
 			*a+4	| &a+4
 		While in Z this is more explicit. It is a pointer until you derreference it.
 			a+4@	| a+4# nonsense but makes mandatory to write a#+4
-	
-	unary operands
 	
 	inc/dec
 		a++, a--	| idem
