@@ -61,7 +61,12 @@ Much like recursion or stacking results.
 
 	a+b+c -> a.add(b.add(c))
 
-The only problem would be to distinguish between a substraction (operation) and a negative constant.
+The only problem would be to distinguish between a substraction (operation) and a negative constant (or sign negation).
+This is a big problem, mostly because in school they taught us one way and it'll be hard to go against.
+But secondly because the operator for sign and substraction are the same.
+And also by the case that a--b is the same as a+b. Having the sign before the operand makes it obvious.
+So is very probably that the sign operator will be the only exception.
+(practicality beats purity?)
 
 	-4	-> not X.sub(4) though is notable that it would be the same as 0.sub(4)
 	But is not a big problem.
