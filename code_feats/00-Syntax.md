@@ -35,10 +35,16 @@ The more heavily affected operators would be:
 			*a+4	| &a+4
 		While in Z this is more explicit. It is a pointer until you derreference it.
 			a+4@	| a+4# nonsense but makes mandatory to write a#+4
+	
+	unary operands
+	
 	inc/dec
 		a++, a--	| idem
 		--a, ++a 	| doesnt exists
-
+	negation
+		looks weird on z
+		not a		| a not (in z) 
+		
 ## What about Arithmetics ¿?
 In arithmetics usually [the operator stands between both operators](https://en.wikipedia.org/wiki/Infix_notation),
 we could change this and use something like the [polish notation](https://en.wikipedia.org/wiki/Polish_notation) 
