@@ -12,10 +12,25 @@ saludoLen: dd 89
 	global main ; ;entry point
 _start:
 main:
+	 ; i had no time to set up a testcase so..
+	nop
 	inc ecx ;incdec ecx
+	dec ecx ;incdec ecx
+	 ; division (integer, signed, 32b)
+mov ecx, 4
+mov eax, [hFile] ;dividend
+mov edx, 0 ;upper half of dividend
+idiv dword ecx ;divide double register edx:eax by regc
+	mov ecx, eax
+	 ; simple math + asignment
 mov edx, eax ;add op 1
 add edx, 3 ;add op 2
 	mov ecx, edx
+mov eax, ebx ;sub op 1
+sub eax, 2 ;sub op 2
+	mov ecx, eax
+	nop
+	nop
 	mov ecx, [esp+4]
 	mov edx, [esp+8]
 	mov eax, [edx+4]
@@ -25,7 +40,7 @@ call open_r
 add esp, 4 ;end open_r
 	mov [hFile], eax
 	cmp DWORD [hFile], 01
-	jl _if_end_139876028242296 ;jump to false, below is 'true'
+	jl _if_end_140335730397592 ;jump to false, below is 'true'
 	push DWORD [buflen] ;read param 0
 	push DWORD buffer ;read param 1
 	push DWORD [hFile] ;read param 2
@@ -33,9 +48,9 @@ call read
 add esp, 12 ;end read
 		mov [readed], eax
 			nop
-		_forstart_139876028243752:
+		_forstart_140335730399272:
 			cmp DWORD [readed], 0
-			jng _forend_139876028243752 ;jump to false, below is 'true'
+			jng _forend_140335730399272 ;jump to false, below is 'true'
 				push DWORD [readed] ;print param 0
 				push DWORD buffer ;print param 1
 			call print
@@ -46,9 +61,9 @@ add esp, 12 ;end read
 call read
 add esp, 12 ;end read
 			mov [readed], eax
-			jmp _forstart_139876028243752
-		_forend_139876028243752:
-	_if_end_139876028242296:
+			jmp _forstart_140335730399272
+		_forend_140335730399272:
+	_if_end_140335730397592:
 	;exiting!
 	mov eax, 1
 	mov ebx, 0

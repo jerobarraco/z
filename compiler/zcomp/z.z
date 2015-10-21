@@ -10,8 +10,18 @@ var int buflen = 2048
 var str saludo = "Bienvenidos a el compilador Z, por favor llame con el nombre de archivo *.z a parsear"
 
 fun int main():
+	· i had no time to set up a testcase so..
+	pass
+
 	ecx ++
+	ecx --
+	· division (integer, signed, 32b)
+	ecx = hFile/4
+	· simple math + asignment
 	ecx = eax+3
+	ecx = ebx -2
+	pass
+	pass
 	ecx = @+4
 	edx = @+8
 	eax = @edx+4

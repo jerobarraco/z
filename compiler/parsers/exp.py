@@ -177,17 +177,18 @@ class Identifier:
 	is_ref = False
 	is_type = False
 	is_reg = False
+	is_const = False
 	def __init__(self, name="", lvl=0, taip = "int"):
 		self.n = name
 		self.l = lvl
-		self.const = False
+		self.is_const = False
 		self.checkConstant()
 		self.setType(	(name in _types) and "type" or taip	)
 
 	def checkConstant(self):
-		self.const = False
+		self.is_const = False
 		if self.n and self.n.isdigit():
-			self.const = True
+			self.is_const = True
 			self.setType(_types[2])
 
 	def setType(self, t):
@@ -201,7 +202,7 @@ class Identifier:
 		self.is_ref = False
 		self.is_reg = sum(map(self.n.startswith, com.regs))>0
 		if not self.is_type:
-			self.is_ref = not (self.const or self.is_reg )#t in _trefs
+			self.is_ref = not (self.is_const or self.is_reg )#t in _trefs
 			if self.mytype in _trefs:
 				self.is_ref = not self.is_ref# looks like an optimization, hard to explain
 		if self.is_reg:
