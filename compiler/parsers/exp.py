@@ -159,6 +159,7 @@ class Condition(Basic):
 		super().__init__("", lvl)
 		self.false = "_if_else_%s"%id(self)
 		self.end = "_if_end_%s"%id(self)
+		#todo if cmp is not a Cmp create a new one Cmp("!=", [cmp, "0"])
 		self.asm = [ cmp ]
 		self.asm.extend(true)
 		if false:
@@ -224,6 +225,7 @@ class Identifier:
 		return self.n
 
 	def tryCall(self, r):
+		#todo fix level here, fails only on call.
 		try:
 			r.getWhile(blank)
 			if not r.get("("): #opened
@@ -248,18 +250,24 @@ class Identifier:
 		r.lstrip()
 		unary = r.get(["++", "--"])
 		if unary:
-			inc = unary == "++"
+			inc = (unary == "++")
 			return asm.IncDec(self, self.l, is_inc = inc)
 		#else
 		op = r.get("+-*/%")
 		if not op : return
+
 		#todo multiexpress parse_real_expression
 		i = parse_real_exp(r, self.l)
 		if not i: raise Hell("identifier expected")
+
 		if op == "+":
-			return math.Add(self, i)
+			return math.Add(self, i, self.l)
 		elif op == "-":
-			return math.Sub(self, i)
+			return math.Sub(self, i, self.l)
+		elif op in ("/", "%"):
+			is_div = (op=="/")
+			return math.DivMod(self, i, self.l, is_div)
+
 
 	def tryCmp(self, r):
 		r.lstrip()
@@ -427,11 +435,17 @@ def get_ident(r, lvl=0):
 	s = r.get(["+", "-"])
 	r.lstrip()
 	n = r.getWhile(nums)
+	#todo this is a mess, should be fixed with "always post operand operation"
 	if n or isregister:
-		if not n: n = i
-		if valat and s:
-			if not i: i = "esp"
-			n = i+s+n
+		#if not n: n = i
+		if valat:
+			if s and n:
+				if not i: i = "esp"
+				n = i+s+n
+		else: #not valat
+			if i: #theres an ident, but this is not a @, so it must be an arithmetic
+				r.restore(s+n)
+				n = i
 		return Identifier(n, lvl, (valat and "ptr") or "int")
 
 def parse_var(r, lvl=0):

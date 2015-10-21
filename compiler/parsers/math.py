@@ -10,7 +10,7 @@ class Add(com.Basic):
 		if not c: c = n
 		super().__init__(n, lvl)
 		reg = "eax"
-		if a.n == reg:
+		if reg in (a.n, b.n):
 			reg = "edx"
 
 		self.asm = []
@@ -20,15 +20,27 @@ class Add(com.Basic):
 		#adc can be used to add two-register-long numbers (ie 64b on 32b)
 
 class Sub(com.Basic):
-	def __init__(self, a, b, lvl=0, c='' ):
+	def __init__(self, a, b, lvl=0):
 		n = "sub "+str(a)+"+"+str(b)
-		if not c: c = n
+		super().__init__(n, lvl)
+		reg = "eax"
+		if reg in (a.n, b.n):
+			reg = "edx"
+
+		self.asm = []
+		self.asm.append(asm.Asm("mov %s, %s"%(reg, a.ref()), lvl, "sub op 1"))
+		self.asm.append(asm.Asm("sub %s, %s"%(reg, b.ref()), lvl, "sub op 2"))
+		self.res = reg
+
+class DivMod(com.Basic):
+	def __init__(self, a, b, lvl=0, is_div=True):
+		n = "sub "+str(a)+"+"+str(b)
 		super().__init__(n, lvl)
 		reg = "eax"
 		if a.n == reg:
 			reg = "edx"
 
 		self.asm = []
-		self.asm.append(asm.Asm("mov %s, %s"%(reg, a.ref()), lvl, "sub op 1"))
-		self.asm.append(asm.Asm("sub %s, %s"%(reg, b.ref()), lvl, "sub op 2"))
+		self.asm.append(asm.Asm("mov %s, %s"%(reg, a.ref()), lvl, "div op 1"))
+		self.asm.append(asm.Asm("sub %s, %s"%(reg, b.ref()), lvl, "div op 2"))
 		self.res = reg

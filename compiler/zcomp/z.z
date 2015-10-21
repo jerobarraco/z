@@ -10,6 +10,8 @@ var int buflen = 2048
 var str saludo = "Bienvenidos a el compilador Z, por favor llame con el nombre de archivo *.z a parsear"
 
 fun int main():
+	ecx ++
+	ecx = eax+3
 	ecx = @+4
 	edx = @+8
 	eax = @edx+4

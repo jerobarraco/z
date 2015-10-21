@@ -12,6 +12,10 @@ saludoLen: dd 89
 	global main ; ;entry point
 _start:
 main:
+	inc ecx ;incdec ecx
+mov edx, eax ;add op 1
+add edx, 3 ;add op 2
+	mov ecx, edx
 	mov ecx, [esp+4]
 	mov edx, [esp+8]
 	mov eax, [edx+4]
@@ -21,7 +25,7 @@ call open_r
 add esp, 4 ;end open_r
 	mov [hFile], eax
 	cmp DWORD [hFile], 01
-	jl _if_end_140253239394712 ;jump to false, below is 'true'
+	jl _if_end_139876028242296 ;jump to false, below is 'true'
 	push DWORD [buflen] ;read param 0
 	push DWORD buffer ;read param 1
 	push DWORD [hFile] ;read param 2
@@ -29,9 +33,9 @@ call read
 add esp, 12 ;end read
 		mov [readed], eax
 			nop
-		_forstart_140253239396392:
+		_forstart_139876028243752:
 			cmp DWORD [readed], 0
-			jng _forend_140253239396392 ;jump to false, below is 'true'
+			jng _forend_139876028243752 ;jump to false, below is 'true'
 				push DWORD [readed] ;print param 0
 				push DWORD buffer ;print param 1
 			call print
@@ -42,9 +46,9 @@ add esp, 12 ;end read
 call read
 add esp, 12 ;end read
 			mov [readed], eax
-			jmp _forstart_140253239396392
-		_forend_140253239396392:
-	_if_end_140253239394712:
+			jmp _forstart_139876028243752
+		_forend_139876028243752:
+	_if_end_139876028242296:
 	;exiting!
 	mov eax, 1
 	mov ebx, 0
