@@ -159,13 +159,15 @@ class Condition(Basic):
 		super().__init__("", lvl)
 		self.false = "_if_else_%s"%id(self)
 		self.end = "_if_end_%s"%id(self)
-		cmp.falseJumpTo(self.false)
 		self.asm = [ cmp ]
-		#TODO if there is no false, dont jump after true
 		self.asm.extend(true)
-		self.asm.append(asm.Asm("jmp "+self.end, lvl))
-		self.asm.append(asm.Asm(self.false+":", lvl))
-		self.asm.extend(false)
+		if false:
+			cmp.falseJumpTo(false)
+			self.asm.append(asm.Asm("jmp "+self.end, lvl))
+			self.asm.append(asm.Asm(self.false+":", lvl))
+			self.asm.extend(false)
+		else:
+			cmp.falseJumpTo(self.end)
 		self.asm.append(asm.Asm(self.end+":", lvl))
 
 class Identifier:
@@ -221,7 +223,7 @@ class Identifier:
 	def __str__(self):#todo change where this is necesary and use self.n instead, and use .ref() as __str__ (maybe)
 		return self.n
 
-	def tryCall(self, r, lvl =0):
+	def tryCall(self, r):
 		try:
 			r.getWhile(blank)
 			if not r.get("("): #opened
@@ -239,28 +241,33 @@ class Identifier:
 			print("lol not callable expression, i don't now anything else")
 		return None
 
-	def tryLen(self, r, lvl=0): pass
-	def tryMath(self, r, lvl=0):
+	def tryLen(self, r): pass
+	def tryMath(self, r):
 		#this probably needs to call parse_real_exp
 		#todo careful to not collide with pointer arithmetic expressions
 		r.lstrip()
 		unary = r.get(["++", "--"])
-		if unary : raise Hell ("lol stub")
+		if unary:
+			inc = unary == "++"
+			return asm.IncDec(self, self.l, is_inc = inc)
+		#else
 		op = r.get("+-*/%")
 		if not op : return
 		#todo multiexpress parse_real_expression
-		i = parse_real_exp(r, lvl)
+		i = parse_real_exp(r, self.l)
 		if not i: raise Hell("identifier expected")
 		if op == "+":
 			return math.Add(self, i)
 		elif op == "-":
 			return math.Sub(self, i)
 
-	def tryCmp(self, r, lvl=0):
+	def tryCmp(self, r):
 		r.lstrip()
 		c = None
-		for i in list(sorted(_cmps.keys(), key=len, reverse=True)): #get order just the opposite as we need so force it.
-			c = r.get([i])#todo fix this hack
+		for i in list(sorted(_cmps.keys(), key=len, reverse=True)):
+			#"get" orders just the opposite way as we need. so force it.
+			#todo fix this hack
+			c = r.get([i])
 			if c : break
 		if not c : return
 		other = get_ident(r)
@@ -268,7 +275,7 @@ class Identifier:
 			raise Exception ("> other identifier expected got this ", repr(r.l))
 		return Cmp(c, [self, other], self.l)
 
-	def trySet(self, r, lvl = 0):
+	def trySet(self, r):
 		r.lstrip()
 		if not r.get("="): return
 		#todo parse_true_real_exp
@@ -294,7 +301,6 @@ class Loop(Basic):
 			asm.Asm(self.start+":", lvl),
 			cmp,
 		]
-		#TODO if there is no false, dont jump after true
 		self.asm.extend(block)
 		self.asm.append(inc)
 		self.asm.append(asm.Asm("jmp "+self.start, lvl+1))
@@ -389,6 +395,8 @@ def get_params(r):
 def get_ident(r, lvl=0):
 	"""tries to get an identifier
 	(type, varname, constant)"""
+	#this whole thing is a big mess, this should be solved if we implement
+	#de/reference as an operator & "operator always after operand" model
 	#Todo restrict types of ident to pick
 	#Type here only affects adressing mode,
 	#ptr -> mov ecx, [val]
@@ -406,11 +414,16 @@ def get_ident(r, lvl=0):
 	#this applies to registers too!
 	i = r.getWhile(letters)
 	isregister = i in _regs
-	if i and not isregister:
+	r.lstrip()
+	#this makes a problem with ++ operand, this is the easiest way i come up with (as a hack ofc)
+	s = r.get(["++", "--"])
+	if s: r.restore(s)
+	if i and (s or not isregister):
 		return Identifier(i, lvl, (address and "ptr") or "int")
 
 	#number
 	#in case of number (constant): adress is "*9999" (invalid), normal is "99999" (int), valat is "[9999]" (ptr)
+
 	s = r.get(["+", "-"])
 	r.lstrip()
 	n = r.getWhile(nums)
@@ -495,7 +508,7 @@ def parse_real_exp(r, lvl=0):
 	#try to see if its a calling
 	for act in (ident.trySet, ident.tryCall, ident.tryLen,
 				ident.tryMath, ident.tryCmp):
-		ret = act(r, lvl)
+		ret = act(r)
 		if ret : return ret
 	return ident # needed to use real_exp in other expressions
 

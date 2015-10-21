@@ -25,6 +25,15 @@ class PushPop(com.Basic):
 		a += ident.ref()
 		self.asm = [ Asm(a, lvl, comment) ]
 
+class IncDec(com.Basic):
+	def __init__(self, a, lvl=0, c='', is_inc=True ):
+		n = "incdec "+str(a)
+		if not c: c = n
+		super().__init__(n, lvl)
+		op = is_inc and "inc " or "dec "
+		self.asm = [Asm(op + a.ref(), lvl, c),]
+		self.res = a
+
 def parse_asm_line(r, lvl=0):
 	print("inside asm_line")
 	r.lstrip()

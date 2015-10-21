@@ -21,7 +21,7 @@ call open_r
 add esp, 4 ;end open_r
 	mov [hFile], eax
 	cmp DWORD [hFile], 01
-	jl _if_else_140127287759200 ;jump to true, below must be jmp to false
+	jl _if_end_140253239394712 ;jump to false, below is 'true'
 	push DWORD [buflen] ;read param 0
 	push DWORD buffer ;read param 1
 	push DWORD [hFile] ;read param 2
@@ -29,9 +29,9 @@ call read
 add esp, 12 ;end read
 		mov [readed], eax
 			nop
-		_forstart_140127287760936:
+		_forstart_140253239396392:
 			cmp DWORD [readed], 0
-			jng _forend_140127287760936 ;jump to true, below must be jmp to false
+			jng _forend_140253239396392 ;jump to false, below is 'true'
 				push DWORD [readed] ;print param 0
 				push DWORD buffer ;print param 1
 			call print
@@ -42,11 +42,9 @@ add esp, 12 ;end read
 call read
 add esp, 12 ;end read
 			mov [readed], eax
-			jmp _forstart_140127287760936
-		_forend_140127287760936:
-	jmp _if_end_140127287759200
-	_if_else_140127287759200:
-	_if_end_140127287759200:
+			jmp _forstart_140253239396392
+		_forend_140253239396392:
+	_if_end_140253239394712:
 	;exiting!
 	mov eax, 1
 	mov ebx, 0

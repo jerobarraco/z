@@ -16,7 +16,10 @@ class Reader:
 		self.l = ""
 		self.level = 0
 		self._r()
-		
+
+	def restore(self, s):
+		self.l = s+self.l #todo, check level?
+
 	def _r(self):
 		print("reading")
 		if self.f.closed :
