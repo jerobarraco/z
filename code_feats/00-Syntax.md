@@ -6,7 +6,7 @@ Well done.
 # NOT  DONE  BY  STATISTICS
 That means: "most people do it like this" is NOT and will NOT be a acceptable argument, EVER.
 
-[Bandwagon_effect](https://en.wikipedia.org/wiki/Bandwagon_effect)ś
+[Bandwagon_effect](https://en.wikipedia.org/wiki/Bandwagon_effect)
 
 # Operator order
 One nice feature to take into account is the operator order.
@@ -33,8 +33,8 @@ The more heavily affected operators would be:
 		This one is interesting and is the most special case for me. 
 		ie, this can create some confusion:
 			*a+4	| &a+4
-		While this is more explicit that a is a pointer until you derreference it.
-			a+4@	| a+4# nonsense but makes mandatory to make a#+4
+		While in Z this is more explicit. It is a pointer until you derreference it.
+			a+4@	| a+4# nonsense but makes mandatory to write a#+4
 	inc/dec
 		a++, a--	| idem
 		--a, ++a 	| doesnt exists
@@ -52,7 +52,7 @@ Much like recursion or stacking results.
 
 	a+b+c -> a.add(b.add(c))
 
-The enly problem would be to distinguish between a substraction (operation) and a negative constant.
+The only problem would be to distinguish between a substraction (operation) and a negative constant.
 
 	-4	-> not X.sub(4) though is notable that it would be the same as 0.sub(4)
 	But is not a big problem.
