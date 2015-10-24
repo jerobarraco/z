@@ -163,7 +163,7 @@ class Condition(Basic):
 		self.asm = [ cmp ]
 		self.asm.extend(true)
 		if false:
-			cmp.falseJumpTo(false)
+			cmp.falseJumpTo(self.false)
 			self.asm.append(asm.Asm("jmp "+self.end, lvl))
 			self.asm.append(asm.Asm(self.false+":", lvl))
 			self.asm.extend(false)

@@ -40,30 +40,32 @@ call open_r
 add esp, 4 ;end open_r
 	mov [hFile], eax
 	cmp DWORD [hFile], 01
-	jl _if_end_140335730397592 ;jump to false, below is 'true'
+	jl _if_end_140629422641560 ;jump to false, below is 'true'
 	push DWORD [buflen] ;read param 0
 	push DWORD buffer ;read param 1
 	push DWORD [hFile] ;read param 2
 call read
 add esp, 12 ;end read
 		mov [readed], eax
-			nop
-		_forstart_140335730399272:
-			cmp DWORD [readed], 0
-			jng _forend_140335730399272 ;jump to false, below is 'true'
-				push DWORD [readed] ;print param 0
-				push DWORD buffer ;print param 1
-			call print
-			add esp, 8 ;end print
-	push DWORD [buflen] ;read param 0
-	push DWORD buffer ;read param 1
-	push DWORD [hFile] ;read param 2
-call read
-add esp, 12 ;end read
-			mov [readed], eax
-			jmp _forstart_140335730399272
-		_forend_140335730399272:
-	_if_end_140335730397592:
+			mov eax, 0
+			_forstart_140629422643464:
+				cmp DWORD [readed], 0
+				jng _forend_140629422643464 ;jump to false, below is 'true'
+					push DWORD [readed] ;print param 0
+					push DWORD buffer ;print param 1
+					call print
+					add esp, 8 ;end print
+
+
+					push DWORD [buflen] ;read param 0
+					push DWORD buffer ;read param 1
+					push DWORD [hFile] ;read param 2
+					call read
+					add esp, 12 ;end read
+					mov [readed], eax
+			jmp _forstart_140629422643464
+			_forend_140629422643464:
+	_if_end_140629422641560:
 	;exiting!
 	mov eax, 1
 	mov ebx, 0
