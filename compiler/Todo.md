@@ -1,3 +1,8 @@
+	Change to 64b
+	calling convention
+	pushing stuff
+	counting ret values
+	registers
 	Z Compiler in Z
 	Z Compiler in Python
 		Better stream reader

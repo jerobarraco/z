@@ -1,58 +1,1 @@
-#!/usr/bin/python3
-#yes, it's done as fast as possible, its a hack
-import sys, subprocess, traceback
-fin = sys.argv[1]
-gcc = len(sys.argv)>2 and sys.argv[2] != 0
-
-print("hola", fin, gcc)
-f = open(fin, "r")
-from parsers import com
-com.main_name = gcc and "main" or "_start"
-
-from parsers.base import Reader, parse, Program
-base_name = fin.rsplit('.', 1)[0]
-on = base_name+".asm"
-o = open(on, "w")
-p = Program(o)
-
-try:
-	parse(Reader(f), p)
-except Exception as e:
-	print ("bad stuff happened")
-	print (e)
-	print(traceback.format_exc())
-finally:
-	f.close()
-	o.flush()
-	o.close()
-	
-bn = base_name+".o"
-args = ['nasm', "-f", "elf", '-o', bn, on]
-print("args",args)
-"""
-with  subprocess.Popen(args, stdout= subprocess.PIPE) as proc:
-	#log.write(proc.stdout.read())p = subprocess.Popen(args) 
-	print ("compiling: ")
-	while proc.poll():
-		print(proc.communicate()[0])
-	proc.wait()
-#3.5 :/ subprocess.run(args, shell=True, check=True)
-"""
-if gcc:
-	args2 = ["gcc",  "-m32", "-o", base_name+".exe", bn]
-else:
-	args2 = ["ld",  "-m" , "elf_i386", "-o", base_name+".exe", bn]
-
-subprocess.check_output(args)
-#subprocess.run(["ld", fin.rsplit('.',1)[0]+".o" ], shell=True, check=True)
-#x = input("go?")
-#args = ["ld", bn ]
-print("args", args2)
-subprocess.check_output(args2)
-"""with  subprocess.Popen(args, stdout= subprocess.PIPE) as proc:
-    #log.write(proc.stdout.read())p = subprocess.Popen(args) 
-	print ("linking: ")
-	while proc.poll():
-		print(proc.communicate()[0])
-"""
-#subprocess.Popen(["ld", fin.rsplit('.',1)[0]+".o" ], shell=True, check=True)
+#!/usr/bin/python3#yes, it's done as fast as possible, its a hackimport sys, subprocess, traceback#Config variablesfin = sys.argv[1]base_name = fin.rsplit('.', 1)[0]gcc = len(sys.argv)>2 and sys.argv[2] != 0x86 = Falseprint("hola", fin, gcc)f = open(fin, "r")from parsers import comcom.main_name = gcc and "main" or "_start"from parsers.base import Reader, parse, Programon = base_name+".asm"o = open(on, "w")p = Program(o)try:	parse(Reader(f), p)except Exception as e:	print ("bad stuff happened")	print (e)	print(traceback.format_exc())finally:	f.close()	o.flush()	o.close()bn = base_name+".o"if x86: #deprecated	args = ['nasm', "-f", "elf", '-o', bn, on]else:	args = ['nasm', "-felf64", '-o', bn, on]print("args",args)"""with  subprocess.Popen(args, stdout= subprocess.PIPE) as proc:	#log.write(proc.stdout.read())p = subprocess.Popen(args) 	print ("compiling: ")	while proc.poll():		print(proc.communicate()[0])	proc.wait()#3.5 :/ subprocess.run(args, shell=True, check=True)"""if x86:	modegcc, modeld = ("-m32", "-melf_i386")else:	modegcc, modeld = ("-m64", "-melf64")if gcc:	args2 = ["gcc",  modegcc, "-o", base_name+".exe", bn]else:	args2 = ["ld",  modegcc, "-o", base_name+".exe", bn]output = subprocess.check_output(args)print ("Nasm output:", output)#subprocess.run(["ld", fin.rsplit('.',1)[0]+".o" ], shell=True, check=True)#x = input("go?")#args = ["ld", bn ]print("args", args2)subprocess.check_output(args2)"""with  subprocess.Popen(args, stdout= subprocess.PIPE) as proc:    #log.write(proc.stdout.read())p = subprocess.Popen(args) 	print ("linking: ")	while proc.poll():		print(proc.communicate()[0])"""#subprocess.Popen(["ld", fin.rsplit('.',1)[0]+".o" ], shell=True, check=True)

@@ -8,29 +8,28 @@ nums = string.digits
 hex = string.hexdigits
 oct = string.octdigits
 
-sizes = {1:'BYTE', 2:'WORD', 4:'DWORD'}#1, 2, 4 bytes
-types = ['byte', 'short', 'int', 'str', 'ptr']
+sizes = {1:'BYTE', 2:'WORD', 4:'DWORD', 8:'QWORD'}#1, 2, 4 bytes
+types = ['byte', 'short', 'int', 'long', 'str', 'ptr']
 tsizes = [1, 2, 4, 4, 4]
 trefs = types[-2:]
 
-regs1 = [
-	"ah", "al",
-	"bh", "bl",
-	"ch", "cl",
-	"dh", "dl",
-]
+regs1_32 = [ "ah", "al", "bh", "bl", "ch", "cl", "dh", "dl",
+			"sp", "bp", "si", "di", "spl", "bpl", "sil", "dil"]
+regs1 = regs1_32 +['r8b', 'r9b', 'r10b', 'r11b', 'r12b', 'r13b', 'r14b', 'r15b']
+#2 Bytes (16 bits)
+regs2_32 = [ "ax", "bx", "cx", "dx" ]
+regs2 = regs2_32 +['r8w', 'r9w', 'r10w', 'r11w', 'r12w', 'r13w', 'r14w', 'r15w']
+#4 Bytes (32 bits)
+regs4_32 = [ "eax", "ebx", "ecx", "edx", "edi", "esi", "ebp", "esp" ]
+regs4 = regs4_32 + ['r8d', 'r9d', 'r10d', 'r11d', 'r12d', 'r13d', 'r14d', 'r15d']
+#8 Bytes (64 bits)
+regs8 = [ "rax", "rbx", "rcx", "rdx", "rdi", "rsi", "rbp", "rsp" ,
+		"r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15" ]
+regs16 = [ "xmm"+str(i) for i in range(16)]
 
-regs2 = [ "ax", "bx", "cx", "dx" ]
-regs4 = [ "eax", "ebx", "ecx", "edx", "edi", "esi", "ebp", "esp" ]
-regs = regs1 +regs2 +regs4
-"""regs = [
-	"eax", "ax", "ah", "al",
-	"ebx", "bx", "bh", "bl",
-	"ecx", "cx", "ch", "cl",
-	"edx", "dx", "dh", "dl",
-	"edi", "esi", "ebp", "esp"
-]
-"""
+regs = regs1 +regs2 +regs4 +regs16
+# http://i.imjpggur.com/Sx9agGN.
+
 cmps = {
 	"==": "je",
 	"<": "jl",

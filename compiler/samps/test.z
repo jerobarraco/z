@@ -17,7 +17,6 @@ fun int main():
 			print(str menor, int menorLen)
 	pass
 
-
 fun print(str buff, int len):
 	ecx = @+4
 	edx = @+8
