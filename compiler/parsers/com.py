@@ -7,9 +7,11 @@ letters = string.ascii_letters + "_"
 nums = string.digits
 hex = string.hexdigits
 oct = string.octdigits
+x86 = False
 
 sizes = {1:'BYTE', 2:'WORD', 4:'DWORD', 8:'QWORD'}#1, 2, 4 bytes
 types = ['byte', 'short', 'int', 'long', 'str', 'ptr']
+type_f = ['float', 'double']# floating point types, not implemented yet
 tsizes = [1, 2, 4, 4, 4]
 trefs = types[-2:]
 
@@ -28,6 +30,9 @@ regs8 = [ "rax", "rbx", "rcx", "rdx", "rdi", "rsi", "rbp", "rsp" ,
 regs16 = [ "xmm"+str(i) for i in range(16)]
 
 regs = regs1 +regs2 +regs4 +regs16
+
+call_regs_i = ("rdi", "rsi", "rdx", "rcx", "r8", "r9")
+call_regs_f = tuple(("xmm"+str(i) for i in range(8)))
 # http://i.imjpggur.com/Sx9agGN.
 
 cmps = {

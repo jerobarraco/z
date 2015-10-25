@@ -63,19 +63,49 @@ class FunCall(Basic):#todo move to fun?
 		self.asm = []
 
 		if self.name == "sys":
-			self.asm.append(asm.Asm("int %s"%params[0], lvl))
+			self.asm.append(asm.Asm("syscall %s"%params[0], lvl))
 			return
 
 		params = list(reversed(params))
+		regs_i = com.call_regs_i[:]
+		regs_f = com.call_regs_f[:]
+		#for the way the call convention works you need te pass them in different order,
+		# so this will be more complicated
+		#1st registers
+		#2nd pass the stack ones
+		stack_pars = []#yo i heard you like stacks, so we use a stack for stack params
 		for i, p in enumerate(params):
-			self.asm.append(asm.PushPop(p, False, lvl+1, "%s param %s"%(self.name, i)))
+			reg = None
+			if p.mytype in com.type_f : #not implemented lol
+				if regs_f:#no, dont "and"-it to the prev if
+					reg = regs_f.pop(0)
+			else:
+				if regs_f:
+					reg = regs_i.pop(0)
+
+			if reg:
+				#TODO moves
+				self.asm.append(asm.PushPop(p, False, lvl+1, " %s stack param %s"%(self.name, i)))
+			else:
+				stack_pars.append(p)
+
+		stack_size = 0
+		for p in stack_pars:
+			self.asm.append(asm.PushPop(p, False, lvl+1, " %s stack param %s"%(self.name, i)))
+			stack_size += p.size
 			#size = p.is_ref and 4 or p.size
 			#self.asm.append(asm.Asm(s%(com.sizes[p.size], p.ref()), lvl+1, "%s param %s"%(self.name, i)))
 
+		#force boundary
+		boundary = stack_size % 16
+		if boundary :
+			self.asm.append(asm.Asm("sub rsp, %s"%boundary, lvl, " keep boundary aligned to 16"))
+			stack_size += boundary
+
+
 		self.asm.append( asm.Asm("call "+name, lvl) )
-		totsize = sum([i.size for i in params])
-		if totsize:
-			self.asm.append( asm.Asm("add esp, "+str(totsize), lvl, "end %s"%self.name))
+		if stack_size:
+			self.asm.append( asm.Asm("add rsp, "+str(stack_size), lvl, "end %s"%self.name))
 
 	def result(self):
 		#todo func return type
