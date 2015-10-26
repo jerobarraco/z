@@ -22,17 +22,7 @@ short	AX
 int, long, pointer (*)	EAX
 """
 #why the fuck it returns char on AL but short on AX?! whats the big difference?!!!
-
-_types = ['byte', 'short', 'int', 'str', 'ptr']
 _tsizes = [1, 2, 4, 4, 4]
-_trefs = _types[-2:]
-_regs = [
-	"eax", "ax", "ah", "al",
-	"ebx", "bx", "bh", "bl",
-	"ecx", "cx", "ch", "cl",
-	"edx", "dx", "dh", "dl",
-	"edi", "esi", "ebp", "esp"
-]
 
 _cmps = {
 	"==": "je",
@@ -160,11 +150,21 @@ class Assign(Basic):
 		#	ops[1] = s+ " "+ ops[1]
 		#if isinstance(val, Cmp):
 		#	#if its a comparison let's put some tricks
-
+		size = ""
+		self.asm = []
 		if isinstance(val, Identifier):
-			self.asm = [asm.Asm("mov %s, %s"%(self.name.ref(), self.v.ref()), self.l),]
+			src = self.v
+			if self.name.is_ref and self.v.is_ref:
+				size = self.name.size
+				reg = com.regss[size][0] #surely an A register
+				src = Identifier(reg, self.l)#here src is dest
+				self.asm.append(asm.Asm("mov %s, %s"%(src, self.v.ref()), self.l),)
+				#need an intermediary mov
+			self.asm = [asm.Asm("mov %s, %s"%(self.name.ref(), src.ref()), self.l),]
 		else:
 			#TOdO multyexpression, funccall
+			if self.name.is_ref and self.v.result().is_ref:
+				size = com.sizes[self.name.size]
 			self.asm = val.asm[:]
 			self.asm.append(asm.Asm("mov %s, %s"%(self.name.ref(), self.v.result().ref()), self.l))
 
@@ -203,29 +203,29 @@ class Condition(Basic):
 
 class Identifier:
 	size = 8
-	mytype = "long"
+	mytype = com.types[com.tdefault]
 	is_ref = False
 	is_type = False
 	is_reg = False
 	is_const = False
-	def __init__(self, name="", lvl=0, taip = "long"):
+	def __init__(self, name="", lvl=0, taip = com.types[com.tdefault]):
 		self.n = name
 		self.l = lvl
 		self.is_const = False
 		self.checkConstant()
-		self.setType(	(name in _types) and "type" or taip	)
+		self.setType(	(name in com.types) and "type" or taip	)
 
 	def checkConstant(self):
 		self.is_const = False
 		if self.n and self.n.isdigit():
 			self.is_const = True
-			self.setType(_types[2])
+			self.setType(com.types[com.tdefault])
 
 	def setType(self, t):
 		self.mytype = t
 		self.is_type = self.mytype == "type"
 		try :
-			self.size = _tsizes[_types.index(t)]
+			self.size = com.tsizes[com.types.index(t)]
 		except:
 			self.size = 8
 
@@ -233,7 +233,7 @@ class Identifier:
 		self.is_reg = sum(map(self.n.startswith, com.regs))>0
 		if not self.is_type:
 			self.is_ref = not (self.is_const or self.is_reg )#t in _trefs
-			if self.mytype in _trefs:
+			if self.mytype in com.trefs:
 				self.is_ref = not self.is_ref# looks like an optimization, hard to explain
 		if self.is_reg:
 			if self.n in com.regs1:
@@ -251,10 +251,10 @@ class Identifier:
 			#	self.is_ref = not self.is_ref
 
 	def refSize(self):#shouldnt exist
-		return self.is_ref and 4 or self.size
+		return self.is_ref and 8 or self.size
 
 	def ref(self):
-		return self.is_ref and "[%s]"%self.n or self.n
+		return self.is_ref and ("[%s]"%self.n) or self.n
 
 	def __str__(self):#todo change where this is necesary and use self.n instead, and use .ref() as __str__ (maybe)
 		return self.n
@@ -262,15 +262,16 @@ class Identifier:
 	def tryCall(self, r):
 		#todo fix level here, fails only on call.
 		try:
-			r.getWhile(blank)
+			r.lstrip()#	r.getWhile(blank)
 			if not r.get("("): #opened
 				raise Exception("Expected (, not a function call")
 			pars = get_params(r)
 			print ("Params are ", list(map(str, pars)))
 			if not r.get(")"):
 				raise Exception("Expected )")
-			r.getWhile(blank)
-			r.getWhile(nl)
+			r.stripBlankLines()
+			#r.getWhile(blank)
+			#r.getWhile(nl)
 			return FunCall(str(self), self.l, pars)
 		except Exception as e:
 			print(e)
@@ -395,6 +396,7 @@ def parse_condition(r, lvl):
 	if not c: #literal if ( ej if (x))
 		c = Cmp("!=", [i, Identifier(0)])
 
+	r.lstrip()
 	if not r.get(":"): raise Hell("You need the : (well not actually)")
 	r.stripBlankLines()
 
@@ -419,19 +421,19 @@ def get_params(r):
 	ps = []
 	while True:
 		#type this is a hotfix until i make a global variables information to store definitions
-		r.lstrip(True)
+		r.lstrip()
 		t = get_ident(r)
 		if not (t and t.is_type):
 			print(" > No Type, no params")
 			break
 		#name
-		r.lstrip(True)
+		r.lstrip()
 		i = get_ident(r)
 		if not i: break
 		i.setType(t.n)
 		ps.append(i)
 
-		r.lstrip(True)
+		r.lstrip()
 		r.getWhile(",")
 	return ps
 
@@ -456,13 +458,13 @@ def get_ident(r, lvl=0):
 	#in case of labels: adress is "label" (int), normal is "[label]" (ptr), valat is "[[label]]" (invalid)
 	#this applies to registers too!
 	i = r.getWhile(letters)
-	isregister = i in _regs
+	isregister = i in com.regs
 	r.lstrip()
 	#this makes a problem with ++ operand, this is the easiest way i come up with (as a hack ofc)
 	s = r.get(["++", "--"])
 	if s: r.restore(s)
 	if i and (s or not isregister):
-		return Identifier(i, lvl, (address and "ptr") or "int")
+		return Identifier(i, lvl, (address and "ptr") or "long")
 
 	#number
 	#in case of number (constant): adress is "*9999" (invalid), normal is "99999" (int), valat is "[9999]" (ptr)
@@ -475,13 +477,13 @@ def get_ident(r, lvl=0):
 		#if not n: n = i
 		if valat:
 			if s and n:
-				if not i: i = "esp"
+				if not i: i = "rsp"
 				n = i+s+n
 		else: #not valat
 			if i: #theres an ident, but this is not a @, so it must be an arithmetic
 				r.restore(s+n)
 				n = i
-		return Identifier(n, lvl, (valat and "ptr") or "int")
+		return Identifier(n, lvl, (valat and "ptr") or "long")
 
 def parse_var(r, lvl=0):
 	"""tries to parse a variable definiton"""
@@ -498,13 +500,13 @@ def parse_var(r, lvl=0):
 	eq = r.get("=")
 
 	if eq:
-		r.getWhile(blank)
+		r.lstrip()
 		tn = str(taip)
 		if tn == "str":#todo use get_ident instead make val an ident
 			if not r.get('"'): raise Exception("expected \"")
 			val = r.getTill(['"'])
 			if val[-1] == '"' : val = val[:-1]
-		elif tn in _types[:3]:
+		elif tn in com.tlit:
 			val = get_ident(r) or 0
 			#val = r.getWhile(nums) or 0
 	#todo pass only Idents to Var

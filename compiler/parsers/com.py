@@ -14,6 +14,8 @@ types = ['byte', 'short', 'int', 'long', 'str', 'ptr']
 type_f = ['float', 'double']# floating point types, not implemented yet
 tsizes = [1, 2, 4, 4, 4]
 trefs = types[-2:]
+tlit = types[:-2]
+tdefault = 3
 
 regs1_32 = [ "ah", "al", "bh", "bl", "ch", "cl", "dh", "dl",
 			"sp", "bp", "si", "di", "spl", "bpl", "sil", "dil"]
@@ -33,6 +35,7 @@ regs8 = [ "rax", "rbx", "rcx", "rdx", "rdi", "rsi", "rbp", "rsp" ,
 regs16 = [ "xmm"+str(i) for i in range(16)]
 
 regs = regs1 +regs2 +regs4 +regs8 +regs16
+regss = { 1:regs1, 2:regs2, 4:regs4, 8:regs8, 16:regs16 }
 
 call_regs_i = ("rdi", "rsi", "rdx", "rcx", "r8", "r9")
 call_regs_f = tuple(("xmm"+str(i) for i in range(8)))

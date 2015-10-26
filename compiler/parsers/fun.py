@@ -5,10 +5,10 @@ class Exit:
 	def __init__(self, c=0, l=0):
 		self.c = c
 		self.l = l
-		s = [	";exiting!",
-			 	"mov eax, 1",
-			 	"mov ebx, %s"%self.c,
-			 	"int 80h  ;byebyecruelworld",
+		s = [	"; exiting!",
+			 	"mov eax, 60",
+			 	"mov rdi, %s"%self.c,
+			 	"syscall",
 				""]
 		self.asms = [ asm.Asm(i, l) for i in s ]
 
@@ -33,8 +33,8 @@ class Fun:
 		lines = []
 		if is_main:
 			lines.append(str(asm.Asm("section .text", self.l, " ; code goes here")))
-			lines.append(str(asm.Asm("segment readable", self.l, " ; code goes here")))
-			lines.append(str(asm.Asm("segment executable", self.l, " ; code goes here")))
+			#lines.append(str(asm.Asm("segment readable", self.l, " ; code goes here")))
+			#lines.append(str(asm.Asm("segment executable", self.l, " ; code goes here")))
 			lines.append(str(asm.Asm("global "+true_name, self.l, " ;entry point")))
 			if true_name != "_start":
 				lines.append(str(asm.Asm("_start:", self.l-1)))
@@ -56,23 +56,23 @@ def parse_proc(r, lvl=0):
 	r.getWhile(com.blank)
 	taip = exp.get_ident(r)
 	if taip.is_type:
-		r.getWhile(com.blank)
+		r.lstrip()
 		name = exp.get_ident(r)#r.getWhile(com.letters)
 	else:
 		name = taip
 	#name = r._getTill(" (:\n")#TODO this whill consume extra chars between funcname and (
-	r.getWhile(com.blank)
+	r.lstrip()#r.getWhile(com.blank)
 	if not r.get("("): raise Exception ("Expected '(' ")
 	print("myname is", repr(name))
 	r.getWhile(com.blank)
 	pars = exp.get_params(r)
 	if not r.get(")"):
 		raise Exception("Expected )")
-	r.getWhile(com.blank)
+	r.lstrip()#r.getWhile(com.blank)
 	if not r.get(":"):
 		Exception("Expected ':'")
-	r.getWhile(com.blank)
-	r.getWhile(com.nl)
+	r.stripBlankLines()#r.getWhile(com.blank)
+	#r.getWhile(com.nl)
 	l = r.level
 	proc = Fun(name, l, pars)
 	print ("level is ", r.level)

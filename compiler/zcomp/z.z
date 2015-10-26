@@ -9,18 +9,22 @@ asm:
 	;segment writeable
 
 var int entero = 5
-var int hFile
-var int hFileName
+var long hFile
+var long hFileName
 var int readed
 var int buflen = 2048
 var str saludo = "Bienvenidos a el compilador Z, por favor llame con el nombre de archivo *.z a parsear"
 
 fun int main():
-	ecx = @+4
-	edx = @+8
-	eax = @edx+4
-	hFileName = eax
-	hFile = open(int hFileName)
+	· rdi = argc
+	· rsi = argv[]
+	if rdi < 1 :
+		exit()
+	·ecx = @+4
+	·edx = @+8
+	·eax = @edx+4
+	hFileName = @rsi+8
+	hFile = open(long hFileName)
 	close(int hFile)
 	·if hFile >= 01:
 	·	readed = read(int hFile, str buffer, int buflen)
@@ -56,4 +60,9 @@ fun read(int hFile, str buff, int buflen):
 	ecx = @+8
 	edx = @+12
 	eax = 3
+	sys()
+
+fun exit():
+	rax = 60
+	rdi = 0
 	sys()

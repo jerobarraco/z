@@ -6,21 +6,25 @@ section .data
 segment readable
 ;segment writeable
 entero: dd 5
-hFile: dd 0
-hFileName: dd 0
+hFile: dq 0
+hFileName: dq 0
 readed: dd 0
 buflen: dd 2048
 saludo: db 'Bienvenidos a el compilador Z, por favor llame con el nombre de archivo *.z a parsear',0
 saludoLen: dd 89
 	section .text ; ; code goes here
-	segment readable ; ; code goes here
-	segment executable ; ; code goes here
 	global main ; ;entry point
 _start:
 main:
-	mov ecx, [esp+4]
-	mov edx, [esp+8]
-	mov eax, [edx+4]
+	 ; rdi = argc
+	 ; rsi = argv[]
+	cmp QWORD rdi, 1
+	jnl _if_end_139871549644528 ;jump to false, below is 'true'
+		call exit
+	_if_end_139871549644528:
+	 ;ecx = @+4
+	 ;edx = @+8
+	 ;eax = @edx+4
 	mov [hFileName], eax
 mov rdi, [hFileName]
 call open
@@ -32,10 +36,10 @@ call open
 	 ;	for eax=0 ; readed > 0; readed = read(int hFile, str buffer, int buflen):
 	 ;		print(str buffer, int readed)
 	 ;	close(int hFile)
-	;exiting!
-	mov eax, 1
-	mov ebx, 0
-	int 80h  ;byebyecruelworld
+	; exiting!
+	mov eax, 60
+	mov rdi, 0
+	syscall
 	
 
  ; now with 100% more comments
@@ -56,8 +60,8 @@ close:
 	ret ;; end close
 
 print:
-	mov ecx, [esp+4]
-	mov edx, [esp+8]
+	mov ecx, [rsp+4]
+	mov edx, [rsp+8]
 	mov eax, 4
 	mov ebx, 1
 	syscall
@@ -65,10 +69,16 @@ print:
 
 read:
 	 ; read(int fd, void *buf, size_t count);;fd=ebx, buf=ecx, len=edx; ret=eax
-	mov ebx, [esp+4]
-	mov ecx, [esp+8]
-	mov edx, [esp+12]
+	mov ebx, [rsp+4]
+	mov ecx, [rsp+8]
+	mov edx, [rsp+12]
 	mov eax, 3
 	syscall
 	ret ;; end read
+
+exit:
+	mov rax, 60
+	mov rdi, 0
+	syscall
+	ret ;; end exit
 
