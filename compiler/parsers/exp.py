@@ -63,12 +63,12 @@ class FunCall(Basic):#todo move to fun?
 		self.asm = []
 
 		if self.name == "sys":
-			self.asm.append(asm.Asm("syscall %s"%params[0], lvl))
+			self.asm.append(asm.Asm("syscall", lvl))
 			return
 
 		params = list(reversed(params))
-		regs_i = com.call_regs_i[:]
-		regs_f = com.call_regs_f[:]
+		regs_i = list(com.call_regs_i)#creates a copy
+		regs_f = list(com.call_regs_f)#creates a copy
 		#for the way the call convention works you need te pass them in different order,
 		# so this will be more complicated
 		#1st registers
@@ -84,8 +84,8 @@ class FunCall(Basic):#todo move to fun?
 					reg = regs_i.pop(0)
 
 			if reg:
-				#TODO moves
-				self.asm.append(asm.PushPop(p, False, lvl+1, " %s stack param %s"%(self.name, i)))
+				ir = Identifier(reg)
+				self.asm.append(Assign(ir , p, lvl))
 			else:
 				stack_pars.append(p)
 
@@ -109,7 +109,7 @@ class FunCall(Basic):#todo move to fun?
 
 	def result(self):
 		#todo func return type
-		return Identifier("eax", 0, "int")
+		return Identifier("rax", 0, "long")
 
 """DB - Define Byte. 8 bits
 DW - Define Word. Generally 2 bytes on a typical x86 32-bit system
@@ -128,8 +128,8 @@ class Var:
 				print ("the type is unknown:", t)
 			t = str(t)
 
-		if t in ("int", "short", "long"):
-			v = {"byte":"db", "short":"dw", "int":"dd"}
+		if t in ('byte', "int", "short", "long"):
+			v = {"byte":"db", "short":"dw", "int":"dd", 'long':'dq'}
 			self.asm = [ asm.Asm(name.n+": "+v[t]+" "+str(val), lvl), ]
 		elif t == "str":
 			val = str(val)
@@ -150,10 +150,9 @@ class Var:
 		return "".join(map(str, self.asm))
 
 class Assign(Basic):
-	def __init__(self, name="", val="", lvl=0):
+	def __init__(self, name="", val=None, lvl=0):
 		super().__init__(name, lvl)
-		#if isinstance(val, Identifier) or isinstance(val, int):
-		#	val = str(val)
+
 		self.v = val
 		#ops = [ (i.is_ref and "[%s]"%i or str(i) ) for i in (self.name, self.v)]
 		#if self.name.is_ref and self.v.is_reg:
@@ -161,7 +160,8 @@ class Assign(Basic):
 		#	ops[1] = s+ " "+ ops[1]
 		#if isinstance(val, Cmp):
 		#	#if its a comparison let's put some tricks
-		if isinstance(val, Identifier) or isinstance(val, str):
+
+		if isinstance(val, Identifier):
 			self.asm = [asm.Asm("mov %s, %s"%(self.name.ref(), self.v.ref()), self.l),]
 		else:
 			#TOdO multyexpression, funccall
@@ -202,13 +202,13 @@ class Condition(Basic):
 		self.asm.append(asm.Asm(self.end+":", lvl))
 
 class Identifier:
-	size = 4
-	mytype = "int"
+	size = 8
+	mytype = "long"
 	is_ref = False
 	is_type = False
 	is_reg = False
 	is_const = False
-	def __init__(self, name="", lvl=0, taip = "int"):
+	def __init__(self, name="", lvl=0, taip = "long"):
 		self.n = name
 		self.l = lvl
 		self.is_const = False
@@ -227,7 +227,7 @@ class Identifier:
 		try :
 			self.size = _tsizes[_types.index(t)]
 		except:
-			self.size = 4
+			self.size = 8
 
 		self.is_ref = False
 		self.is_reg = sum(map(self.n.startswith, com.regs))>0
@@ -240,8 +240,12 @@ class Identifier:
 				self.size = 1
 			elif self.n in com.regs2:
 				self.size = 2
-			else:
+			elif self.n in com.regs4:
 				self.size = 4
+			elif self.n in com.regs16: #notice skip for regs8
+				self.size = 16
+			else:
+				self.size = 8 #default is reg8
 			#if self.is_reg:
 			#	self.is_ref = False
 			#	self.is_ref = not self.is_ref

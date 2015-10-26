@@ -24,12 +24,15 @@ regs2 = regs2_32 +['r8w', 'r9w', 'r10w', 'r11w', 'r12w', 'r13w', 'r14w', 'r15w']
 #4 Bytes (32 bits)
 regs4_32 = [ "eax", "ebx", "ecx", "edx", "edi", "esi", "ebp", "esp" ]
 regs4 = regs4_32 + ['r8d', 'r9d', 'r10d', 'r11d', 'r12d', 'r13d', 'r14d', 'r15d']
+
 #8 Bytes (64 bits)
 regs8 = [ "rax", "rbx", "rcx", "rdx", "rdi", "rsi", "rbp", "rsp" ,
 		"r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15" ]
+
+#16 bytes (128 bits lol)
 regs16 = [ "xmm"+str(i) for i in range(16)]
 
-regs = regs1 +regs2 +regs4 +regs16
+regs = regs1 +regs2 +regs4 +regs8 +regs16
 
 call_regs_i = ("rdi", "rsi", "rdx", "rcx", "r8", "r9")
 call_regs_f = tuple(("xmm"+str(i) for i in range(8)))

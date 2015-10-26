@@ -35,35 +35,31 @@ sub eax, 2 ;sub op 2
 	mov edx, [esp+8]
 	mov eax, [edx+4]
 	mov [hFileName], eax
-	push DWORD [hFileName] ;open_r param 0
+mov rdi, [hFileName]
 call open_r
-add esp, 4 ;end open_r
-	mov [hFile], eax
+	mov [hFile], rax
 	cmp DWORD [hFile], 01
-	jl _if_end_140711311023520 ;jump to false, below is 'true'
-	push DWORD [buflen] ;read param 0
-	push DWORD buffer ;read param 1
-	push DWORD [hFile] ;read param 2
+	jl _if_end_140062032041240 ;jump to false, below is 'true'
+mov rdi, [buflen]
+mov rsi, buffer
+mov rdx, [hFile]
 call read
-add esp, 12 ;end read
-		mov [readed], eax
+		mov [readed], rax
 			mov eax, 0
-		_forstart_140711309785128:
+		_forstart_140062032043256:
 			cmp DWORD [readed], 0
-			jng _forend_140711309785128 ;jump to false, below is 'true'
-				push DWORD [readed] ;print param 0
-				push DWORD buffer ;print param 1
+			jng _forend_140062032043256 ;jump to false, below is 'true'
+			mov rdi, [readed]
+			mov rsi, buffer
 			call print
-			add esp, 8 ;end print
-	push DWORD [buflen] ;read param 0
-	push DWORD buffer ;read param 1
-	push DWORD [hFile] ;read param 2
+mov rdi, [buflen]
+mov rsi, buffer
+mov rdx, [hFile]
 call read
-add esp, 12 ;end read
-			mov [readed], eax
-			jmp _forstart_140711309785128
-		_forend_140711309785128:
-	_if_end_140711311023520:
+			mov [readed], rax
+			jmp _forstart_140062032043256
+		_forend_140062032043256:
+	_if_end_140062032041240:
 	;exiting!
 	mov eax, 1
 	mov ebx, 0
@@ -77,7 +73,7 @@ open_r:
 	mov eax, 5
 	mov ecx, 0
 	mov edx, 0
-	syscall 128
+	syscall
 	ret ;; end open_r
 
 print:
@@ -85,7 +81,7 @@ print:
 	mov edx, [esp+8]
 	mov eax, 4
 	mov ebx, 1
-	syscall 128
+	syscall
 	ret ;; end print
 
 read:
@@ -94,6 +90,6 @@ read:
 	mov ecx, [esp+8]
 	mov edx, [esp+12]
 	mov eax, 3
-	syscall 128
+	syscall
 	ret ;; end read
 
