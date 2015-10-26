@@ -1,0 +1,61 @@
+asm:
+	section .bss
+	;segment readable
+	;segment writeable
+		buffer: resb 2048 ; A 2 KB byte buffer used for read
+	section .data
+	;segment readable;this will cause sigsev
+	;segment writeable
+
+var long hFile
+var long hFileName
+var long readed
+var long buflen = 2048
+
+fun int main():
+	· rdi = argc
+	· rsi = argv[]
+	if rdi < 1 :
+		exit()
+
+	hFileName = @rsi+8
+	hFile = open(long hFileName)
+	· exit(int 0)
+	if hFile >= 01:
+		readed = read(long hFile, str buffer, long buflen)
+		for pass; readed > 0; readed = read(int hFile, str buffer, int buflen):
+			print(int readed, str buffer)
+	·	close(int hFile)
+
+· now with 100% more comments
+fun open(str fname):
+	· open(char *path, int flags, mode_t mode) put filename in ebx. return is on eax
+	· rax = 2, rdi = filename, rsi = O_WRONLY, rdx =flags for create
+	· rdi = @+4 fname is already on rdi
+	rax = 2
+	rsi = 0
+	rdx = 0
+	sys()
+
+fun close(int fileHandle):
+	· rdi = @+4 first param is already rdi
+	rax = 3
+	sys()
+
+fun print(int len, str buff):
+	rax = 1
+	· len to syscall len
+	rdx = rdi
+	rdi = 1
+	· rsi is first param no need to change
+	sys()
+
+fun read(int hFile, str buff, int buflen):
+	· read(int fd, void *buf, size_t count);;fd=rdi, buf=rsi, len=rdx; ret=rax
+	rax = 0
+	sys()
+
+fun exit(long code):
+	rax = 60
+	· rdi = 0 · param already on rdi
+	sys()
