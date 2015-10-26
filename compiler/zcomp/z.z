@@ -24,10 +24,9 @@ fun int main():
 	·eax = @edx+4
 	hFileName = @rsi+8
 	hFile = open(long hFileName)
-	close(int hFile)
-	exit(int 0)
-	·if hFile >= 01:
-	·	readed = read(int hFile, str buffer, int buflen)
+	· exit(int 0)
+	if hFile >= 01:
+		readed = read(int hFile, str buffer, int buflen)
 	·	for eax=0 ; readed > 0; readed = read(int hFile, str buffer, int buflen):
 	·		print(str buffer, int readed)
 	·	close(int hFile)

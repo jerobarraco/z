@@ -8,9 +8,10 @@ class Asm:
 		self.com = com
 
 	def __str__(self):
-		s =  (self.lvl*"\t")+self.inst
+		s = (self.lvl*"\t")+self.inst
 		if self.com:
-			s += " ;"+self.com
+			if self.inst: s += " "
+			s += "; "+self.com
 		s += com.nl
 		return s
 

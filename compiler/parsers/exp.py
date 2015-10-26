@@ -74,13 +74,13 @@ class FunCall(Basic):#todo move to fun?
 
 			if reg:
 				ir = Identifier(reg)
-				self.asm.append(Assign(ir , p, lvl+1))
+				self.asm.append(Assign(ir , p, lvl+1,  "'%s' reg param %s"%(self.name, i)  ))
 			else:
 				stack_pars.append(p)
 
 		stack_size = 0
-		for p in stack_pars:
-			self.asm.append(asm.PushPop(p, False, lvl+1, " %s stack param %s"%(self.name, i)))
+		for i, p in enumerate(stack_pars):
+			self.asm.append(asm.PushPop(p, False, lvl+1, "'%s' stack param %s"%(self.name, i)))
 			stack_size += p.size
 			#size = p.is_ref and 4 or p.size
 			#self.asm.append(asm.Asm(s%(com.sizes[p.size], p.ref()), lvl+1, "%s param %s"%(self.name, i)))
@@ -88,7 +88,7 @@ class FunCall(Basic):#todo move to fun?
 		#force boundary
 		boundary = stack_size % 16
 		if boundary :
-			self.asm.append(asm.Asm("sub rsp, %s"%boundary, lvl, " keep boundary aligned to 16"))
+			self.asm.append(asm.Asm("sub rsp, %s"%boundary, lvl+1, "keep boundary aligned to 16"))
 			stack_size += boundary
 
 
@@ -139,7 +139,7 @@ class Var:
 		return "".join(map(str, self.asm))
 
 class Assign(Basic):
-	def __init__(self, name="", val=None, lvl=0):
+	def __init__(self, name="", val=None, lvl=0, comm = ""):
 		super().__init__(name, lvl)
 
 		self.v = val
@@ -157,15 +157,15 @@ class Assign(Basic):
 				size = self.name.size
 				reg = com.regss[size][0] #surely an A register
 				src = Identifier(reg, self.l)#here src is dest
-				self.asm.append(asm.Asm("mov %s, %s"%(src, self.v.ref()), self.l),)
+				self.asm.append(asm.Asm("mov %s, %s"%(src, self.v.ref()), self.l, "expand mem2mem mov"),)
 				#need an intermediary mov
-			self.asm.append(asm.Asm("mov %s, %s"%(self.name.ref(), src.ref()), self.l))
+			self.asm.append(asm.Asm("mov %s, %s"%(self.name.ref(), src.ref()), self.l, comm))
 		else:
 			#TOdO multyexpression, funccall
 			if self.name.is_ref and self.v.result().is_ref:
 				size = com.sizes[self.name.size]
 			self.asm = val.asm[:]
-			self.asm.append(asm.Asm("mov %s, %s"%(self.name.ref(), self.v.result().ref()), self.l))
+			self.asm.append(asm.Asm("mov %s, %s"%(self.name.ref(), self.v.result().ref()), self.l, "store previous result"))
 
 class Cmp(Basic):
 	def __init__(self, cmp="==", ops=[], lvl = 0):

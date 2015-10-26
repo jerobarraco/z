@@ -32,10 +32,10 @@ class Fun:
 		true_name = is_main and com.main_name or n
 		lines = []
 		if is_main:
-			lines.append(str(asm.Asm("section .text", self.l, " ; code goes here")))
+			lines.append(str(asm.Asm("section .text", self.l, "code goes here")))
 			#lines.append(str(asm.Asm("segment readable", self.l, " ; code goes here")))
 			#lines.append(str(asm.Asm("segment executable", self.l, " ; code goes here")))
-			lines.append(str(asm.Asm("global "+true_name, self.l, " ;entry point")))
+			lines.append(str(asm.Asm("global "+true_name, self.l, "entry point")))
 			if true_name != "_start":
 				lines.append(str(asm.Asm("_start:", self.l-1)))
 		lines.append(str(asm.Asm(true_name+":", self.l-1)))
