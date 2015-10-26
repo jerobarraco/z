@@ -7,11 +7,11 @@ asm:
 	;segment readable;this will cause sigsev
 	;segment writeable
 
-var int entero = 5
+var long entero = 5
 var long hFile
 var long hFileName
-var int readed
-var int buflen = 2048
+var long readed
+var long buflen = 2048
 var str saludo = "Bienvenidos a el compilador Z, por favor llame con el nombre de archivo *.z a parsear"
 
 fun int main():
@@ -19,16 +19,14 @@ fun int main():
 	· rsi = argv[]
 	if rdi < 1 :
 		exit()
-	· rsi = rsi+8
-	· yes the above code is totally unefficient yet
-	rsi = @rsi
+
 	hFileName = @rsi+8
 	hFile = open(long hFileName)
 	· exit(int 0)
 	if hFile >= 01:
 		readed = read(long hFile, str buffer, long buflen)
 		for pass; readed > 0; readed = read(int hFile, str buffer, int buflen):
-			print(str buffer, int readed)
+			print(int readed, str buffer)
 	·	close(int hFile)
 
 · now with 100% more comments
@@ -46,19 +44,16 @@ fun close(int fileHandle):
 	rax = 3
 	sys()
 
-fun print(str buff, int len):
-	ecx = @+4
-	edx = @+8
-	eax = 4
-	ebx = 1
+fun print(int len, str buff):
+	rax = 1
+	· len to syscall len
+	rdx = rsi
+	rsi = 1
 	sys()
 
 fun read(int hFile, str buff, int buflen):
-	· read(int fd, void *buf, size_t count);;fd=ebx, buf=ecx, len=edx; ret=eax
-	ebx = @+4
-	ecx = @+8
-	edx = @+12
-	eax = 3
+	· read(int fd, void *buf, size_t count);;fd=rdi, buf=rsi, len=rdx; ret=rax
+	rax = 0
 	sys()
 
 fun exit(long code):

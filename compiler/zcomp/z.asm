@@ -5,11 +5,11 @@ buffer: resb 2048 ; A 2 KB byte buffer used for read
 section .data
 ;segment readable;this will cause sigsev
 ;segment writeable
-entero: dd 5
+entero: dq 5
 hFile: dq 0
 hFileName: dq 0
-readed: dd 0
-buflen: dd 2048
+readed: dq 0
+buflen: dq 2048
 saludo: db 'Bienvenidos a el compilador Z, por favor llame con el nombre de archivo *.z a parsear',0
 saludoLen: dd 89
 	section .text ; code goes here
@@ -19,12 +19,9 @@ main:
 	;  rdi = argc
 	;  rsi = argv[]
 	cmp QWORD rdi, 1
-	jnl _if_end_139811874467736 ; jump to false, below is 'true'
+	jnl _if_end_139942640010184 ; jump to false, below is 'true'
 		call exit
-	_if_end_139811874467736:
-	;  rsi = rsi+8
-	;  yes the above code is totally unefficient yet
-	mov rsi, [rsi]
+	_if_end_139942640010184:
 	mov rax, [rsi+8] ; expand mem2mem mov
 	mov [hFileName], rax
 		mov rdi, [hFileName] ; 'open' reg param 0
@@ -32,16 +29,16 @@ main:
 	mov [hFile], rax ; store previous result
 	;  exit(int 0)
 	cmp QWORD [hFile], 01
-	jl _if_end_139811875620960 ; jump to false, below is 'true'
+	jl _if_end_139942640061128 ; jump to false, below is 'true'
 			mov rdi, [hFile] ; 'read' reg param 0
 			mov rsi, buffer ; 'read' reg param 1
 			mov rdx, [buflen] ; 'read' reg param 2
 		call read
 		mov [readed], rax ; store previous result
 			nop
-		_forstart_139811875622752:
+		_forstart_139942640124424:
 			cmp QWORD [readed], 0
-			jng _forend_139811875622752 ; jump to false, below is 'true'
+			jng _forend_139942640124424 ; jump to false, below is 'true'
 				mov rdi, buffer ; 'print' reg param 0
 				mov rsi, [readed] ; 'print' reg param 1
 			call print
@@ -50,9 +47,9 @@ main:
 				mov rdx, [buflen] ; 'read' reg param 2
 			call read
 			mov [readed], rax ; store previous result
-			jmp _forstart_139811875622752
-		_forend_139811875622752:
-	_if_end_139811875620960:
+			jmp _forstart_139942640124424
+		_forend_139942640124424:
+	_if_end_139942640061128:
 	; 	close(int hFile)
 	; exiting!
 	mov eax, 60
@@ -78,19 +75,16 @@ close:
 	ret ; ; end close
 
 print:
-	mov ecx, [rsp+4]
-	mov edx, [rsp+8]
-	mov eax, 4
-	mov ebx, 1
+	mov rax, 1
+	;  len to syscall len
+	mov rdx, rsi
+	mov rsi, 1
 	syscall
 	ret ; ; end print
 
 read:
-	;  read(int fd, void *buf, size_t count);;fd=ebx, buf=ecx, len=edx; ret=eax
-	mov ebx, [rsp+4]
-	mov ecx, [rsp+8]
-	mov edx, [rsp+12]
-	mov eax, 3
+	;  read(int fd, void *buf, size_t count);;fd=rdi, buf=rsi, len=rdx; ret=rax
+	mov rax, 0
 	syscall
 	ret ; ; end read
 
