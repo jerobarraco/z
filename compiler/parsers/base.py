@@ -149,24 +149,6 @@ class Reader:
 
 		print ("scanned", p, "characters:", repr(b), " consumed?:", consume)
 		return b
-	'''use scanwhil(consume=true)
-	def getWhile(self, toks=[]):
-		"keeps consuming chars while its one of the possible"
-		p = 0
-		while p<len(self.l) and (self.l[p] in toks):
-			p += 1
-			self.ensure(p+1)
-		b = self.consume(p)
-		print ("stripped", p, "characters:", repr(b))
-		return b
-		"""t = ""
-		while True:
-			tt = self.scan(toks, consume=True)
-			if not tt: break
-			t += tt
-		print("consumed", repr(t))
-		return t"""
-	'''
 
 	def getTill(self, toks=[], consume=True, or_end=True):
 		p = 0

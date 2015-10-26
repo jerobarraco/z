@@ -1,7 +1,13 @@
 asm:
 	section .bss
+	segment readable
+	segment writeable
+
 		buffer: resb 2048 ; A 2 KB byte buffer used for read
 	section .data
+	segment readable
+	;segment writeable
+
 var int entero = 5
 var int hFile
 var int hFileName
@@ -10,43 +16,39 @@ var int buflen = 2048
 var str saludo = "Bienvenidos a el compilador Z, por favor llame con el nombre de archivo *.z a parsear"
 
 fun int main():
-	· i had no time to set up a testcase so..
-	pass
-
-	ecx ++
-	ecx --
-	· division (integer, signed, 32b)
-	ecx = hFile/4
-	· simple math + asignment
-	ecx = eax+3
-	ecx = ebx -2
-	pass
-	pass
 	ecx = @+4
 	edx = @+8
 	eax = @edx+4
 	hFileName = eax
-	hFile = open_r(int hFileName)
-	if hFile >= 01:
-		readed = read(int hFile, str buffer, int buflen)
-		for eax=0 ; readed > 0; readed = read(int hFile, str buffer, int buflen):
-			print(str buffer, int readed)
+	hFile = open(int hFileName)
+	close(int hFile)
+	·if hFile >= 01:
+	·	readed = read(int hFile, str buffer, int buflen)
+	·	for eax=0 ; readed > 0; readed = read(int hFile, str buffer, int buflen):
+	·		print(str buffer, int readed)
+	·	close(int hFile)
 
 · now with 100% more comments
-fun open_r(str fname):
+fun open(str fname):
 	· open(char *path, int flags, mode_t mode) put filename in ebx. return is on eax
-	ebx = @+4
-	eax = 5
-	ecx = 0
-	edx = 0
-	sys(int 128)
+	· rax = 2, rdi = filename, rsi = O_WRONLY, rdx =flags for create
+	· rdi = @+4 fname is already on rdi
+	rax = 2
+	rsi = 0
+	rdx = 0
+	sys()
+
+fun close(int fileHandle):
+	· rdi = @+4 first param is already rdi
+	rax = 3
+	sys()
 
 fun print(str buff, int len):
 	ecx = @+4
 	edx = @+8
 	eax = 4
 	ebx = 1
-	sys(int 128)
+	sys()
 
 fun read(int hFile, str buff, int buflen):
 	· read(int fd, void *buf, size_t count);;fd=ebx, buf=ecx, len=edx; ret=eax
@@ -54,4 +56,4 @@ fun read(int hFile, str buff, int buflen):
 	ecx = @+8
 	edx = @+12
 	eax = 3
-	sys(int 128)
+	sys()

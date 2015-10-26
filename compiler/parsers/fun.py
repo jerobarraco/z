@@ -33,6 +33,8 @@ class Fun:
 		lines = []
 		if is_main:
 			lines.append(str(asm.Asm("section .text", self.l, " ; code goes here")))
+			lines.append(str(asm.Asm("segment readable", self.l, " ; code goes here")))
+			lines.append(str(asm.Asm("segment executable", self.l, " ; code goes here")))
 			lines.append(str(asm.Asm("global "+true_name, self.l, " ;entry point")))
 			if true_name != "_start":
 				lines.append(str(asm.Asm("_start:", self.l-1)))
