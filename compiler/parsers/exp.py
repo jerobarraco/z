@@ -43,10 +43,9 @@ _cmpsn = {
 }#Todo fix
 
 class FunCall(Basic):#todo move to fun?
-	def __init__(self, name="", lvl=0, params=[]):
+	def __init__(self, name="", params=[], lvl=0):
 		super().__init__(name, lvl)
 		self.name = name
-		self.l = lvl
 		#for now pass params on the stack by value
 		#todo modify Identifier to be able to get type information
 		self.params = params
@@ -75,7 +74,7 @@ class FunCall(Basic):#todo move to fun?
 
 			if reg:
 				ir = Identifier(reg)
-				self.asm.append(Assign(ir , p, lvl))
+				self.asm.append(Assign(ir , p, lvl+1))
 			else:
 				stack_pars.append(p)
 
@@ -262,17 +261,15 @@ class Identifier:
 	def tryCall(self, r):
 		#todo fix level here, fails only on call.
 		try:
-			r.lstrip()#	r.getWhile(blank)
-			if not r.get("("): #opened
+			r.lstrip()
+			if not r.get("("):
 				raise Exception("Expected (, not a function call")
 			pars = get_params(r)
 			print ("Params are ", list(map(str, pars)))
 			if not r.get(")"):
 				raise Exception("Expected )")
 			r.stripBlankLines()
-			#r.getWhile(blank)
-			#r.getWhile(nl)
-			return FunCall(str(self), self.l, pars)
+			return FunCall(str(self), pars, self.l)
 		except Exception as e:
 			print(e)
 			print(traceback.format_exc())
@@ -325,7 +322,7 @@ class Identifier:
 		#todo parse_true_real_exp
 
 		r.lstrip()
-		exp = parse_real_exp(r, r.level)
+		exp = parse_real_exp(r, self.l)
 		#i = get_ident(r)#todo parse_real_exp
 		if not exp:
 			#i = r.getWhile(nums) #todo getNum
@@ -517,7 +514,7 @@ def parse_exp(r, lvl=0): #expressions are separated by \n so one liners here onl
 	print ("parsing expression", repr(r.l))
 	l = r.level
 	insts = []
-	spaces = r.getWhile(blank)
+	spaces = r.lstrip()#r.getWhile(blank)
 	#1str try pass
 	#if r.get(["pass",]):
 	#	print("just a pass")

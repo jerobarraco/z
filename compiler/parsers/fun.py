@@ -53,26 +53,25 @@ class Fun:
 def parse_proc(r, lvl=0):
 	print("got a 'fun' line buff is", repr(r.l), "level is", repr(r.level))
 	mylvl = lvl
-	r.getWhile(com.blank)
-	taip = exp.get_ident(r)
+	r.lstrip()
+	taip = exp.get_ident(r, lvl)
 	if taip.is_type:
 		r.lstrip()
-		name = exp.get_ident(r)#r.getWhile(com.letters)
+		name = exp.get_ident(r, lvl)
 	else:
 		name = taip
 	#name = r._getTill(" (:\n")#TODO this whill consume extra chars between funcname and (
-	r.lstrip()#r.getWhile(com.blank)
+	r.lstrip()
 	if not r.get("("): raise Exception ("Expected '(' ")
 	print("myname is", repr(name))
-	r.getWhile(com.blank)
+	r.lstrip()
 	pars = exp.get_params(r)
 	if not r.get(")"):
 		raise Exception("Expected )")
-	r.lstrip()#r.getWhile(com.blank)
+	r.lstrip()
 	if not r.get(":"):
 		Exception("Expected ':'")
-	r.stripBlankLines()#r.getWhile(com.blank)
-	#r.getWhile(com.nl)
+	r.stripBlankLines()
 	l = r.level
 	proc = Fun(name, l, pars)
 	print ("level is ", r.level)

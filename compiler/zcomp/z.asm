@@ -19,20 +19,20 @@ main:
 	 ; rdi = argc
 	 ; rsi = argv[]
 	cmp QWORD rdi, 1
-	jnl _if_end_139842437144472 ;jump to false, below is 'true'
+	jnl _if_end_140516694712216 ;jump to false, below is 'true'
 		call exit
-	_if_end_139842437144472:
+	_if_end_140516694712216:
 	 ;ecx = @+4
 	 ;edx = @+8
 	 ;eax = @edx+4
 	mov rax, [rsi+8]
 	mov [hFileName], rax
-mov rdi, [hFileName]
-call open
+		mov rdi, [hFileName]
+	call open
 	mov [hFile], rax
-	mov rdi, [hFile]
+		mov rdi, [hFile]
 	call close
-	mov rdi, 0
+		mov rdi, 0
 	call exit
 	 ;if hFile >= 01:
 	 ;	readed = read(int hFile, str buffer, int buflen)
