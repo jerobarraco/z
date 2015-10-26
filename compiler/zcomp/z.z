@@ -47,8 +47,9 @@ fun close(int fileHandle):
 fun print(int len, str buff):
 	rax = 1
 	· len to syscall len
-	rdx = rsi
-	rsi = 1
+	rdx = rdi
+	rdi = 1
+	· rsi is first param no need to change
 	sys()
 
 fun read(int hFile, str buff, int buflen):
