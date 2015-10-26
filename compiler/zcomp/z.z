@@ -19,16 +19,16 @@ fun int main():
 	· rsi = argv[]
 	if rdi < 1 :
 		exit()
-	·ecx = @+4
-	·edx = @+8
-	·eax = @edx+4
+	· rsi = rsi+8
+	· yes the above code is totally unefficient yet
+	rsi = @rsi
 	hFileName = @rsi+8
 	hFile = open(long hFileName)
 	· exit(int 0)
 	if hFile >= 01:
-		readed = read(int hFile, str buffer, int buflen)
-	·	for eax=0 ; readed > 0; readed = read(int hFile, str buffer, int buflen):
-	·		print(str buffer, int readed)
+		readed = read(long hFile, str buffer, long buflen)
+		for pass; readed > 0; readed = read(int hFile, str buffer, int buflen):
+			print(str buffer, int readed)
 	·	close(int hFile)
 
 · now with 100% more comments

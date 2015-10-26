@@ -9,9 +9,12 @@ class Add(com.Basic):
 		n = "add "+str(a)+"+"+str(b)
 		if not c: c = n
 		super().__init__(n, lvl)
-		reg = "eax"
+		#todo support different sizes
+		reg = "rax"
 		if reg in (a.n, b.n):
-			reg = "edx"
+			reg = "rdx"
+			if reg in (a.n, b.n):
+				reg = "rcx"
 
 		self.asm = []
 		self.asm.append(asm.Asm("mov %s, %s"%(reg, a.ref()), lvl, "add op 1"))

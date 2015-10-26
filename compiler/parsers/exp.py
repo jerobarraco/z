@@ -55,7 +55,7 @@ class FunCall(Basic):#todo move to fun?
 			self.asm.append(asm.Asm("syscall", lvl))
 			return
 
-		params = list(reversed(params))
+		params = list(params)
 		regs_i = list(com.call_regs_i)#creates a copy
 		regs_f = list(com.call_regs_f)#creates a copy
 		#for the way the call convention works you need te pass them in different order,
@@ -76,7 +76,7 @@ class FunCall(Basic):#todo move to fun?
 				ir = Identifier(reg)
 				self.asm.append(Assign(ir , p, lvl+1,  "'%s' reg param %s"%(self.name, i)  ))
 			else:
-				stack_pars.append(p)
+				stack_pars.insert(p, 0)
 
 		stack_size = 0
 		for i, p in enumerate(stack_pars):
@@ -476,6 +476,8 @@ def get_ident(r, lvl=0):
 			if s and n:
 				if not i: i = "rsp"
 				n = i+s+n
+			else:
+				n = i
 		else: #not valat
 			if i: #theres an ident, but this is not a @, so it must be an arithmetic
 				r.restore(s+n)

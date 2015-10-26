@@ -19,12 +19,12 @@ main:
 	;  rdi = argc
 	;  rsi = argv[]
 	cmp QWORD rdi, 1
-	jnl _if_end_140050809941800 ; jump to false, below is 'true'
+	jnl _if_end_139811874467736 ; jump to false, below is 'true'
 		call exit
-	_if_end_140050809941800:
-	; ecx = @+4
-	; edx = @+8
-	; eax = @edx+4
+	_if_end_139811874467736:
+	;  rsi = rsi+8
+	;  yes the above code is totally unefficient yet
+	mov rsi, [rsi]
 	mov rax, [rsi+8] ; expand mem2mem mov
 	mov [hFileName], rax
 		mov rdi, [hFileName] ; 'open' reg param 0
@@ -32,15 +32,27 @@ main:
 	mov [hFile], rax ; store previous result
 	;  exit(int 0)
 	cmp QWORD [hFile], 01
-	jl _if_end_140050811091040 ; jump to false, below is 'true'
-			mov rdi, [buflen] ; 'read' reg param 0
+	jl _if_end_139811875620960 ; jump to false, below is 'true'
+			mov rdi, [hFile] ; 'read' reg param 0
 			mov rsi, buffer ; 'read' reg param 1
-			mov rdx, [hFile] ; 'read' reg param 2
+			mov rdx, [buflen] ; 'read' reg param 2
 		call read
 		mov [readed], rax ; store previous result
-	_if_end_140050811091040:
-	; 	for eax=0 ; readed > 0; readed = read(int hFile, str buffer, int buflen):
-	; 		print(str buffer, int readed)
+			nop
+		_forstart_139811875622752:
+			cmp QWORD [readed], 0
+			jng _forend_139811875622752 ; jump to false, below is 'true'
+				mov rdi, buffer ; 'print' reg param 0
+				mov rsi, [readed] ; 'print' reg param 1
+			call print
+				mov rdi, [hFile] ; 'read' reg param 0
+				mov rsi, buffer ; 'read' reg param 1
+				mov rdx, [buflen] ; 'read' reg param 2
+			call read
+			mov [readed], rax ; store previous result
+			jmp _forstart_139811875622752
+		_forend_139811875622752:
+	_if_end_139811875620960:
 	; 	close(int hFile)
 	; exiting!
 	mov eax, 60
