@@ -160,7 +160,7 @@ class Assign(Basic):
 				src = Identifier(reg, self.l)#here src is dest
 				self.asm.append(asm.Asm("mov %s, %s"%(src, self.v.ref()), self.l),)
 				#need an intermediary mov
-			self.asm = [asm.Asm("mov %s, %s"%(self.name.ref(), src.ref()), self.l),]
+			self.asm.append(asm.Asm("mov %s, %s"%(self.name.ref(), src.ref()), self.l))
 		else:
 			#TOdO multyexpression, funccall
 			if self.name.is_ref and self.v.result().is_ref:

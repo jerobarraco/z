@@ -1,11 +1,10 @@
 asm:
 	section .bss
-	segment readable
-	segment writeable
-
+	;segment readable
+	;segment writeable
 		buffer: resb 2048 ; A 2 KB byte buffer used for read
 	section .data
-	segment readable
+	;segment readable;this will cause sigsev
 	;segment writeable
 
 var int entero = 5
@@ -26,6 +25,7 @@ fun int main():
 	hFileName = @rsi+8
 	hFile = open(long hFileName)
 	close(int hFile)
+	exit(int 0)
 	·if hFile >= 01:
 	·	readed = read(int hFile, str buffer, int buflen)
 	·	for eax=0 ; readed > 0; readed = read(int hFile, str buffer, int buflen):
@@ -62,7 +62,7 @@ fun read(int hFile, str buff, int buflen):
 	eax = 3
 	sys()
 
-fun exit():
+fun exit(long code):
 	rax = 60
-	rdi = 0
+	· rdi = 0 · param already on rdi
 	sys()

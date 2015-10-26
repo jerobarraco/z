@@ -1,9 +1,9 @@
 section .bss
-segment readable
-segment writeable
+;segment readable
+;segment writeable
 buffer: resb 2048 ; A 2 KB byte buffer used for read
 section .data
-segment readable
+;segment readable;this will cause sigsev
 ;segment writeable
 entero: dd 5
 hFile: dq 0
@@ -19,18 +19,21 @@ main:
 	 ; rdi = argc
 	 ; rsi = argv[]
 	cmp QWORD rdi, 1
-	jnl _if_end_139871549644528 ;jump to false, below is 'true'
+	jnl _if_end_139842437144472 ;jump to false, below is 'true'
 		call exit
-	_if_end_139871549644528:
+	_if_end_139842437144472:
 	 ;ecx = @+4
 	 ;edx = @+8
 	 ;eax = @edx+4
-	mov [hFileName], eax
+	mov rax, [rsi+8]
+	mov [hFileName], rax
 mov rdi, [hFileName]
 call open
 	mov [hFile], rax
 	mov rdi, [hFile]
 	call close
+	mov rdi, 0
+	call exit
 	 ;if hFile >= 01:
 	 ;	readed = read(int hFile, str buffer, int buflen)
 	 ;	for eax=0 ; readed > 0; readed = read(int hFile, str buffer, int buflen):
@@ -78,7 +81,7 @@ read:
 
 exit:
 	mov rax, 60
-	mov rdi, 0
+	 ; rdi = 0 · param already on rdi
 	syscall
 	ret ;; end exit
 
