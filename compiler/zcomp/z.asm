@@ -19,9 +19,9 @@ main:
 	;  rdi = argc
 	;  rsi = argv[]
 	cmp QWORD rdi, 1
-	jnl _if_end_140131397025920 ; jump to false, below is 'true'
+	jnl _if_end_139965632921728 ; jump to false, below is 'true'
 		call exit
-	_if_end_140131397025920:
+	_if_end_139965632921728:
 	mov rax, [rsi+8] ; expand mem2mem mov
 	mov [hFileName], rax
 		mov rdi, [hFileName] ; 'open' reg param 0
@@ -29,16 +29,16 @@ main:
 	mov [hFile], rax ; store previous result
 	;  exit(int 0)
 	cmp QWORD [hFile], 01
-	jl _if_end_140131397077704 ; jump to false, below is 'true'
+	jl _if_end_139965632973512 ; jump to false, below is 'true'
 			mov rdi, [hFile] ; 'read' reg param 0
 			mov rsi, buffer ; 'read' reg param 1
 			mov rdx, [buflen] ; 'read' reg param 2
 		call read
 		mov [readed], rax ; store previous result
 			nop
-		_forstart_140131397141000:
+		_forstart_139965633036808:
 			cmp QWORD [readed], 0
-			jng _forend_140131397141000 ; jump to false, below is 'true'
+			jng _forend_139965633036808 ; jump to false, below is 'true'
 				mov rdi, [readed] ; 'print' reg param 0
 				mov rsi, buffer ; 'print' reg param 1
 			call print
@@ -47,9 +47,9 @@ main:
 				mov rdx, [buflen] ; 'read' reg param 2
 			call read
 			mov [readed], rax ; store previous result
-			jmp _forstart_140131397141000
-		_forend_140131397141000:
-	_if_end_140131397077704:
+			jmp _forstart_139965633036808
+		_forend_139965633036808:
+	_if_end_139965632973512:
 	; 	close(int hFile)
 	; exiting!
 	mov eax, 60

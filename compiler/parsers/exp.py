@@ -63,11 +63,13 @@ class FunCall(Basic):#todo move to fun?
 		#1st registers
 		#2nd pass the stack ones
 		stack_pars = []#yo i heard you like stacks, so we use a stack for stack params
+		xmms = 0
 		for i, p in enumerate(params):
 			reg = None
 			if p.mytype in com.type_f : #not implemented lol
 				if regs_f:#no, dont "and"-it to the prev if
 					reg = regs_f.pop(0)
+					xmms += 1 #wtf
 			else:
 				if regs_f:
 					reg = regs_i.pop(0)
@@ -91,6 +93,8 @@ class FunCall(Basic):#todo move to fun?
 			self.asm.append(asm.Asm("sub rsp, %s"%boundary, lvl+1, "keep boundary aligned to 16"))
 			stack_size += boundary
 
+		#wtf why did they had to make everything SO convoluted! registers call convention is such a good idea but such a bad implementation!
+		self.asm.append(asm.Asm("mov rax, %s"%xmms, lvl, "xmm registers"))
 
 		self.asm.append( asm.Asm("call "+name, lvl) )
 		if stack_size:

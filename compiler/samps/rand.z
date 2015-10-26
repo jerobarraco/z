@@ -14,26 +14,29 @@ asm:
 
 var str mensaje = "how long is this?"
 var str lectura="%d"
-var int num
+var long t
+var long num
+var long r
+var long l
 
 fun int main():
 	· "opens" a file (does nothing but doesn't crash)
-	fopen(int 0)
-
+	· fopen(int 0)
 	· get current time
-	time(int 0)
+
+	t = time(int 0)
 	· seeds random
-	srand(int eax)
+	srand(int t)
 	· gets one random number
-	rand()
+	r = rand()
 	· shows it
-	printf(str fmt, int eax)
+	printf(str fmt, int r, int 0, int 0)
 
 	· read and echo a number
 	scanf (str lectura, ptr num )
 	printf(str fmt, int num)
 
 	·get string length
-	strlen(str mensaje)
-	printf(str fmt, int eax)
+	l = strlen(str mensaje)
+	printf(str fmt, int l)
 
