@@ -8,15 +8,15 @@ var str inp = "%d %d"
 var str posit = "M and N are equal"
 var str negat = "M and N are not equal"
 var str msg = "0"
-var int m = 0
-var int n = 0
+var long m = 0
+var long n = 0
 
 
 fun main():
 	printf(str fmt)
 	scanf(str inp, ptr m, ptr n)
-	eax = n
-	if eax == m:
+	rax = n
+	if rax == m:
 		printf(str posit)
 	else:
 		printf(str negat)

@@ -36,6 +36,7 @@
 			* Variables
 			Expressions
 				* Assignment
+					Assign to the same register
 				* Boolean (for ifs)
 				* push
 				* pop
@@ -58,6 +59,7 @@
 					return values
 			* Branch
 				* If
+				Compare two memories (see asign mem2mem)
 			* Loops
 				* While (nobody needs a while when there's a for)
 				* for
@@ -69,3 +71,4 @@
 		Const
 			data types
 		Namespaces (honk honk cheeen)
+			imports
