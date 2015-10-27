@@ -94,7 +94,7 @@ class FunCall(Basic):#todo move to fun?
 			stack_size += boundary
 
 		#wtf why did they had to make everything SO convoluted! registers call convention is such a good idea but such a bad implementation!
-		self.asm.append(asm.Asm("mov rax, %s"%xmms, lvl, "xmm registers"))
+		self.asm.append(asm.Asm("mov rax, %s"%xmms, lvl+1, "xmm registers"))
 
 		self.asm.append( asm.Asm("call "+name, lvl) )
 		if stack_size:

@@ -26,9 +26,11 @@ class Sub(com.Basic):
 	def __init__(self, a, b, lvl=0):
 		n = "sub "+str(a)+"+"+str(b)
 		super().__init__(n, lvl)
-		reg = "eax"
+		reg = "rax"
 		if reg in (a.n, b.n):
-			reg = "edx"
+			reg = "rdx"
+			if reg in (a.n, b.n):
+				reg = "rcx"
 
 		self.asm = []
 		self.asm.append(asm.Asm("mov %s, %s"%(reg, a.ref()), lvl, "sub op 1"))
@@ -57,19 +59,19 @@ class DivMod(com.Basic):
 		#mov	[c],eax		; store quotient into c
 		from parsers.exp import Assign, Identifier
 		self.asm = []
-		rega = "eax"
-		regb = "edx"
-		regc = "ecx"
+		rega = "rax"
+		regb = "rdx"#nopes
+		regc = "rcx"
 		if a.n == regc:
-			regc = "ebx"
-
+			regc = "rbx"
+		#mov rdx,0 ; avoid error #todo mover si alguno es rdx
 		if (b.n in (rega, regb)) or b.is_const:
 			self.asm.append(Assign(Identifier(regc), b, self.l))
 		else:
 			regc = b.ref()
 		self.asm.extend( [
 			asm.Asm("mov %s, %s"%(rega, a.ref()), self.l, "dividend"),
-			asm.Asm("mov edx, 0", self.l, "upper half of dividend"),
-			asm.Asm("idiv dword %s"%(regc,), self.l, "divide double register edx:eax by regc"),
+			asm.Asm("mov rdx, 0", self.l, "avoid exception"),
+			asm.Asm("div dword %s"%(regc,), self.l, "divide double register edx:eax by regc"),
 		 ] )
 		self.res = isdiv and rega or regb
