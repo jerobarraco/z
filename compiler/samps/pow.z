@@ -22,5 +22,5 @@ var str cb = "4.73 ^ 12 = %f\n"
 var str cc = "32.01 ^ 1.54 = %f\n"
 
 fun main():
-	pow( int 7, int 3)
-	printf(str ca, int eax)
+	pow( long 7, long 3)
+	printf(str ca, long rax)

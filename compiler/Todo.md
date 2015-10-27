@@ -55,6 +55,7 @@
 					Arguments
 						* detect
 						* pass
+						pass less than 8Bytes
 						param name
 					return values
 			* Branch
