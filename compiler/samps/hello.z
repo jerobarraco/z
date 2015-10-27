@@ -2,23 +2,18 @@
 asm:
 	section .bss
 		buffer: resb 2048 ; A 2 KB byte buffer used for read
-
 	section .data
-var str saludo = "Bienvenidos a el compilador Z, por favor llame con el nombre de archivo *.z a parsear"
-asm:
-	section .text
-	global _start
 
+var str saludo = "Welcome to Z!\n"
 
 fun main():
-	print(str saludo, int saludoLen)
+	print(int saludoLen, str saludo)
 
-fun print(str buff, int len):
-	asm:
-		; buf=ecx, len=edx plz
-		mov ecx,[esp+4] ; esp is return address;callee cleanup is retarded
-		mov edx,[esp+8]
-		mov eax, 0x04 ; syscall write = 4
-		mov ebx, 0x01 ; STDOUT = 1
-		int 0x80
+fun print(int len, str buff):
+	rax = 1
+	· len to syscall len
+	rdx = rdi
+	rdi = 1
+	· rsi is first param no need to change
+	sys()
 

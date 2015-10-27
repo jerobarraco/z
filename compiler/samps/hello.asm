@@ -1,25 +1,28 @@
- 
-; ----------------------------------------------------------------------------------------
-; Writes "Hello, World" to the console using only system calls. Runs on 64-bit Linux only.
-; To assemble and run:
-;
-;     nasm -felf64 hello.asm && ld hello.o && ./a.out
-; ----------------------------------------------------------------------------------------
-
-        global  _start
-
-        section .text
+section .bss
+buffer: resb 2048 ; A 2 KB byte buffer used for read
+section .data
+saludo: db 'Welcome to Z!',10,0
+saludoLen: dd 20
+	section .text ; code goes here
+	global main ; entry point
 _start:
-        ; write(1, message, 13)
-        mov     rax, 1                  ; system call 1 is write
-        mov     rdi, 1                  ; file handle 1 is stdout
-        mov     rsi, message            ; address of string to output
-        mov     rdx, 13                 ; number of bytes
-        syscall                         ; invoke operating system to do the write
+main:
+		mov rdi, [saludoLen] ; 'print' reg param 0
+		mov rsi, saludo ; 'print' reg param 1
+	mov rax, 0 ; xmm registers
+	call print
+	; exiting!
+	mov eax, 60
+	mov rdi, 0
+	syscall
+	
 
-        ; exit(0)
-        mov     eax, 60                 ; system call 60 is exit
-        xor     rdi, rdi                ; exit code 0
-        syscall                         ; invoke operating system to exit
-message:
-        db      "Hello, World", 10      ; note the newline at the end
+print:
+	mov rax, 1
+	;  len to syscall len
+	mov rdx, rdi
+	mov rdi, 1
+	;  rsi is first param no need to change
+	syscall
+	ret ; ; end print
+
