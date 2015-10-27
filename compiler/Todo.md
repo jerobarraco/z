@@ -42,7 +42,7 @@
 				* pop
 				result_in
 				Math
-					* Add, Sub
+					* Add, Sub, Div
 					Div, Mul, Mod, inc/dec
 				Bool
 					not, and, or, xor

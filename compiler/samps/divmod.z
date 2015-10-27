@@ -5,10 +5,11 @@ asm:
 var str intro ="Enter a number\n"
 var str introb ="Enter a number\n"
 var str input = "%d"
-var str tres = "The result is = %d.\n"
+var str tres = "The division is = %d, modulus is = %d.\n"
 var long number = 0
 var long numberb = 0
 var long res = 0
+var long resm = 0
 
 fun main():
 	printf(str intro)
@@ -16,4 +17,5 @@ fun main():
 	printf(str introb)
 	scanf(str input, ptr numberb)
 	res = number / numberb
-	printf(str tres, long res)
+	resm = number % numberb
+	printf(str tres, long res, long resm)

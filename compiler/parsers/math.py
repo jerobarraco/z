@@ -93,6 +93,6 @@ class DivMod(com.Basic):
 		#mov rdx,0 ; avoid error
 		self.asm.extend( [
 			asm.Asm("xor rdx, rdx", self.l, "clear the high bits"), #this is used to divide 16 by 8 Bytes
-			asm.Asm("idiv qword %s"%(b.ref(),), self.l, "divide double register rdx:rax by B"),
+			asm.Asm("idiv qword %s"%(b.ref(),), self.l, "divide quad register rdx:rax by B"),
 		] )
 		self.res = isdiv and rega or regb
