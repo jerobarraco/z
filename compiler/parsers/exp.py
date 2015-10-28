@@ -121,10 +121,7 @@ class Var:
 				print ("the type is unknown:", t)
 			t = str(t)
 
-		if t in ('byte', "int", "short", "long"):
-			v = {"byte":"db", "short":"dw", "int":"dd", 'long':'dq'}
-			self.asm = [ asm.Asm(name.n+": "+v[t]+" "+str(val), lvl), ]
-		elif t == "str":
+		if t == "str":
 			val = str(val)
 			val = val.replace("\\n", "',10,'")
 			val = "'"+val
@@ -138,6 +135,11 @@ class Var:
 				asm.Asm(name.n+"Len: dd %s"%len(val), lvl)
 				#TODO until i have a way to get the information of the variables everything must be dd for calling functions
 			]
+		else:
+			#if t in ('byte', "int", "short", "long"):
+			s = com.typeSize(t)
+			sd = com.sizes_d[s]
+			self.asm = [ asm.Asm(name.n+": "+sd+" "+str(val), lvl), ]
 
 	def __str__(self):
 		return "".join(map(str, self.asm))
@@ -165,6 +167,11 @@ class Assign(Basic):
 				#need an intermediary mov
 			self.asm.append(asm.Asm("mov %s, %s"%(self.name.ref(), src.ref()), self.l, comm))
 		else:
+			if isinstance(val, Cmp):
+				#todo improve this so a Cmp could be used just like evrything else
+				#also funccall should work similarly....
+				#in fact every expression should work alike, even the identifiers
+				val.setToBool(self.name.size)
 			#TOdO multyexpression, funccall
 			if self.name.is_ref and self.v.result().is_ref:
 				size = com.sizes[self.name.size]
@@ -178,19 +185,35 @@ class Cmp(Basic):
 		self.ops = (self.s,)+tuple([i.ref() for i in ops])
 
 		self.j = _cmpsn[cmp]
+		self.asm = []
 
 	def falseJumpTo(self, tag=None):
-		self.asm = [
-			asm.Asm( "cmp %s %s, %s"%self.ops, self.l),
-		]
+		self.asm.append( asm.Asm( "cmp %s %s, %s"%self.ops, self.l))
 		if tag :# note that setting tag to none effectively "removes" the jump
 			self.asm.append(asm.Asm(self.j+" "+tag, self.l, "jump to false, below is 'true'"))
 
+	def setToBool(self, size=8):
+		"""Stores a bool on a register,
+		 @size is the size of the register"""
+		endtag = self.newTag("toBool_end")
+		falsetag = self.newTag("toBool_false")
+		reg = com.regss[size][0]#an A register
+		ireg = Identifier(reg)
+		self.falseJumpTo(falsetag)
+		#true
+		self.asm.append(Assign(ireg, Identifier("-1"), self.l))
+		self.asm.append(asm.Asm("jmp "+endtag, self.l))
+		self.asm.append(asm.Asm(falsetag+":", self.l))
+		self.asm.append(Assign(ireg, Identifier("0"), self.l))
+		#end
+		self.asm.append(asm.Asm(endtag+":", self.l))
+		self.res = ireg
+		return self.res
 
 class Condition(Basic):
 	def __init__(self, cmp, true=[], false=[], lvl = 0):
 		super().__init__("", lvl)
-		self.false = "_if_else_%s"%id(self)
+		self.false = "_if_else_%s"%id(self)#todo newTag
 		self.end = "_if_end_%s"%id(self)
 		#todo if cmp is not a Cmp create a new one Cmp("!=", [cmp, "0"])
 		self.asm = [ cmp ]
@@ -220,7 +243,9 @@ class Identifier:
 
 	def checkConstant(self):
 		self.is_const = False
-		if self.n and self.n.isdigit():
+		n = self.n
+		if n[0] == "-": n = n[1:]
+		if n and n.isdecimal():
 			self.is_const = True
 			self.setType(com.types[com.tdefault])
 
@@ -397,7 +422,7 @@ def parse_condition(r, lvl):
 	if not i: raise Hell("identifier expected")
 	c = i.tryCmp(r)
 	if not c: #literal if ( ej if (x))
-		c = Cmp("!=", [i, Identifier(0)])
+		c = Cmp("!=", [i, Identifier("0")])
 
 	r.lstrip()
 	if not r.get(":"): raise Hell("You need the : (well not actually)")

@@ -9,13 +9,17 @@ hex = string.hexdigits
 oct = string.octdigits
 x86 = False
 
+#todo, make a more organized structure with this
 sizes = {1:'BYTE', 2:'WORD', 4:'DWORD', 8:'QWORD'}#1, 2, 4 bytes
-types = ['byte', 'short', 'int', 'long', 'str', 'ptr']
+sizes_d = {1:'db', 2:'dw', 4:'dd', 8:'dq'}
+types = ['byte', 'short', 'int', 'bool', 'long', 'str', 'ptr']
 type_f = ['float', 'double']# floating point types, not implemented yet
-tsizes = [1, 2, 4, 8, 8, 8]
+tsizes = [1, 2, 4, 8, 8, 8, 8]
+# todo change bool size to 1
 trefs = types[-2:]
 tlit = types[:-2]
 tdefault = 3
+def typeSize(t): return tsizes[types.index(t)]
 
 regs1_32 = [ "ah", "al", "bh", "bl", "ch", "cl", "dh", "dl",
 			"sp", "bp", "si", "di", "spl", "bpl", "sil", "dil"]
@@ -77,3 +81,6 @@ class Basic:
 
 	def __str__(self):
 		return "".join(map(str, self.asm))
+
+	def newTag(self, base):
+		return "_%s_%s"%(base, id(self))

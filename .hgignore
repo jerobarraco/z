@@ -6,3 +6,4 @@ compiler/samps/*.asm
 compiler/samps/*.exe
 *.pyc
 compiler/samps/*.o
+compiler/zzzzdocs/*

@@ -1,0 +1,22 @@
+asm:
+	extern	printf		; the C function, to be called
+	extern	scanf
+	SECTION .data
+
+var str intro ="Enter a number: \n"
+var str input = "%lld"
+
+var str pos = "Is 10 or more.\n"
+var str neg = "Is less than 10.\n"
+
+var long number = 0
+var bool ispos = 0
+
+fun main():
+	printf(str intro)
+	scanf(str input, ptr number)
+	ispos = number >= 10
+	if ispos:
+		printf(str pos)
+	else:
+		printf(str neg)
