@@ -6,3 +6,7 @@ a = divmod(10,3)
 
 q, m = 10/3
 - could be, though multiple return value is something i haven't planned yet
+
+
+10/3:q, m
+- breaks everything

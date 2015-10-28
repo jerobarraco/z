@@ -27,7 +27,7 @@
 			pe)
 				The @ and # create a new ident
 				we need the global admin for this
-			
+	
 			* Literas (only numbers)
 			Literals (strings or chars) (needs _global admin_ to create vars outside block)
 				char 
@@ -42,8 +42,7 @@
 				* pop
 				result_in
 				Math
-					* Add, Sub, Div, Mod, inc/dec
-					 Mul
+					* Add, Sub, Div, Mod, inc/dec, Mul
 				Bool
 					not, and, or, xor
 				var_size (needs global)
