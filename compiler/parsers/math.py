@@ -5,7 +5,6 @@ __author__ = 'nande'
 from parsers import com, asm
 from parsers.com import Hell
 
-
 class Add(com.Basic):
 	def __init__(self, a, b, lvl=0, c='' ):
 		n = "add "+str(a)+"+"+str(b)
@@ -42,7 +41,7 @@ class Sub(com.Basic):
 
 class DivMod(com.Basic):
 	def __init__(self, a, b, lvl=0, is_div=True):
-		n = "sub "+str(a)+"+"+str(b)
+		n = "divmod "+str(a)+"+"+str(b)
 		super().__init__(n, lvl)
 		ds = b.size
 		#todo support different sizes
@@ -96,3 +95,76 @@ class DivMod(com.Basic):
 			asm.Asm("idiv qword %s"%(b.ref(),), self.l, "divide quad register rdx:rax by B"),
 		] )
 		self.res = isdiv and rega or regb
+
+class Mult(com.Basic):
+	def __init__(self, a, b, lvl=0):
+		"""multiplies 2 numbers, it overwrites the 1st operand if it's a reg"""
+		#there are 13 types of imul (and some more for mul) this is only one
+		n = "mult "+str(a)+"+"+str(b)
+		super().__init__(n, lvl)
+		from parsers.exp import Assign, Identifier
+		#todo support different sizes
+
+		self.asm = []
+		if not a.is_reg: #if its not a register, change it
+			rega = b.n == "rax" and "rcx" or "rax"
+			new_a = Identifier(rega)
+			self.asm.append(Assign(new_a, a, self.l, "copy A to dest"))
+			a = new_a
+
+		#b can't be immediate
+		if b.is_const:
+			regb = a.n == "rcx" and "rdx" or "rcx"
+			new_b = Identifier(regb)
+			self.asm.append(Assign(new_b, b, self.l, "copy B to origin"))
+			b = new_b
+
+		self.asm.append(asm.Asm("IMUL %s, %s"%(a.ref(), b.ref()), lvl, "multiply A=A*B"))
+		self.res = a
+
+"""
+IMUL reg64, reg/mem64
+0F AF /r
+put the signed result in the 32-bit destination register.
+Multiply the contents of a 64-bit destination register by
+the contents of a 64-bit register or memory operand and
+put the signed result in the 64-bit destination register.
+Multiply the contents of a 16-bit register or memory
+"""
+
+
+
+"""
+MUL
+ Unsigned Multiply
+Multiplies the unsigned byte, word, doubleword, or quadword value in the specified register or
+memory location by the value in AL, AX, EAX, or RAX and stores the result in AX, DX:AX,
+EDX:EAX, or RDX:RAX (depending on the operand size). It puts the high-order bits of the product in
+AH, DX, EDX, or RDX.
+If the upper half of the product is non-zero, the instruction sets the carry flag (CF) and overflow flag
+(OF) both to 1. Otherwise, it clears CF and OF to 0. The other arithmetic flags (SF, ZF, AF, PF) are
+undefined.
+Mnemonic
+MUL reg/mem8
+MUL reg/mem16
+MUL reg/mem32
+MUL reg/mem64
+Opcode
+F6 /4
+F7 /4
+F7 /4
+F7 /4
+Description
+Multiplies an 8-bit register or memory operand by the
+contents of the AL register and stores the result in the
+AX register.
+Multiplies a 16-bit register or memory operand by the
+contents of the AX register and stores the result in the
+DX:AX register.
+Multiplies a 32-bit register or memory operand by the
+contents of the EAX register and stores the result in the
+EDX:EAX register.
+Multiplies a 64-bit register or memory operand by the
+contents of the RAX register and stores the result in the
+RDX:RAX register.
+"""

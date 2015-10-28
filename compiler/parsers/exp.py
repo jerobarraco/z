@@ -304,6 +304,8 @@ class Identifier:
 		elif op in ("/", "%"):
 			is_div = (op=="/")
 			return math.DivMod(self, i, self.l, is_div)
+		elif op == "*":
+			return math.Mult(self, i, self.l)
 
 
 	def tryCmp(self, r):

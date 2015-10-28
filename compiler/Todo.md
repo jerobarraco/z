@@ -42,8 +42,8 @@
 				* pop
 				result_in
 				Math
-					* Add, Sub, Div
-					Div, Mul, Mod, inc/dec
+					* Add, Sub, Div, Mod, inc/dec
+					 Mul
 				Bool
 					not, and, or, xor
 				var_size (needs global)
